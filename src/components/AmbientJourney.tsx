@@ -12,80 +12,101 @@ function lcg(seed: number) {
   };
 }
 
-// Galaxy dust — hundreds of static pinpoints, no twinkle, pure depth
-const galaxyStars = Array.from({ length: 260 }, (_, i) => {
+// ── Spectral color picker — realistic star population (M>K>G>F>A>B>O) ────────
+function starColor(r: number): string {
+  if (r < 0.28) return "star-orange";   // K-type — most common visible orange
+  if (r < 0.48) return "";               // G-type — sun-yellow (default white-ish)
+  if (r < 0.60) return "star-red";       // M-type — red-orange
+  if (r < 0.72) return "star-warm";      // F-type — yellow-white
+  if (r < 0.83) return "star-cool";      // A-type — pure white
+  if (r < 0.93) return "star-blue";      // B-type — blue-white
+  return "star-blue";                    // O-type — hottest blue (rare, brightest)
+}
+
+// Galaxy dust — dense, static, no twinkle — pure depth layer
+const galaxyStars = Array.from({ length: 520 }, (_, i) => {
   const r = lcg(i * 3 + 11);
-  const px = r(), py = r(), ps = r();
-  // Slightly denser band along a diagonal (Milky Way hint)
-  const bandBias = Math.max(0, 1 - Math.abs((px - py * 0.6 - 0.2) * 3));
-  const topVal   = py * 100 + bandBias * 8;
-  const col = ps < 0.18 ? "star-blue" : ps < 0.30 ? "star-warm" : "";
+  const px = r(), py = r(), ps = r(), pc = r();
+  // Milky Way diagonal density bias
+  const band = Math.max(0, 1 - Math.abs((px - py * 0.55 - 0.18) * 2.8));
+  const topVal = py * 100 + band * 10;
   return {
     id: i,
     left: `${px * 100}%`,
     top:  `${Math.min(topVal, 100)}%`,
-    size: ps * 0.5 + 0.2,          // 0.2 – 0.7 px
-    col,
+    size: ps * 0.55 + 0.15,   // 0.15 – 0.70 px
+    col: starColor(pc),
   };
 });
 
-const farStars = Array.from({ length: 140 }, (_, i) => {
+const farStars = Array.from({ length: 220 }, (_, i) => {
   const r = lcg(i * 7 + 1);
   const px = r(), py = r(), ps = r(), pc = r();
-  const col = pc < 0.16 ? "star-blue" : pc < 0.28 ? "star-warm" : pc < 0.40 ? "star-cool" : "";
   return {
     id: i,
     left: `${px * 100}%`,
     top:  `${py * 100}%`,
-    size: ps * 1.1 + 0.4,          // 0.4 – 1.5 px
-    delay: `${r() * 14}s`,
-    dur:   `${6 + r() * 8}s`,
-    col,
+    size: ps * 1.2 + 0.35,   // 0.35 – 1.55 px
+    delay: `${r() * 16}s`,
+    dur:   `${7 + r() * 9}s`,
+    col: starColor(pc),
   };
 });
 
-const midStars = Array.from({ length: 72 }, (_, i) => {
+const midStars = Array.from({ length: 110 }, (_, i) => {
   const r = lcg(i * 13 + 500);
   const px = r(), py = r(), ps = r(), pc = r();
-  const col = pc < 0.20 ? "star-blue" : pc < 0.34 ? "star-warm" : "";
   return {
     id: i,
     left: `${px * 100}%`,
     top:  `${py * 100}%`,
-    size: ps * 1.5 + 0.8,          // 0.8 – 2.3 px
-    delay: `${r() * 10}s`,
-    dur:   `${4 + r() * 6}s`,
-    col,
+    size: ps * 1.6 + 0.75,   // 0.75 – 2.35 px
+    delay: `${r() * 11}s`,
+    dur:   `${4.5 + r() * 6.5}s`,
+    col: starColor(pc),
   };
 });
 
-const nearStars = Array.from({ length: 28 }, (_, i) => {
+const nearStars = Array.from({ length: 42 }, (_, i) => {
   const r = lcg(i * 31 + 900);
+  const pc = r();
   return {
     id: i,
     left: `${r() * 100}%`,
     top:  `${r() * 100}%`,
-    size: r() * 2.2 + 1.2,         // 1.2 – 3.4 px
-    delay: `${r() * 8}s`,
+    size: r() * 2.4 + 1.1,   // 1.1 – 3.5 px
+    delay: `${r() * 9}s`,
     dur:   `${3 + r() * 5}s`,
+    col: starColor(pc),
   };
 });
 
-// Notable bright stars — large, spike glow, fixed (no parallax drift)
+// Prominent fixed stars — diffraction spikes, strong glow
 const brightStars = [
-  { id: 0, left: "8%",  top: "7%",  size: 3.5, delay: "0s",    dur: "7s",  col: "star-blue" },
-  { id: 1, left: "72%", top: "4%",  size: 3.0, delay: "2.2s",  dur: "9s",  col: "" },
-  { id: 2, left: "91%", top: "22%", size: 2.8, delay: "4.8s",  dur: "8s",  col: "star-warm" },
-  { id: 3, left: "18%", top: "38%", size: 3.2, delay: "1.4s",  dur: "10s", col: "star-blue" },
-  { id: 4, left: "84%", top: "55%", size: 2.6, delay: "6.1s",  dur: "7s",  col: "" },
-  { id: 5, left: "38%", top: "71%", size: 3.0, delay: "3.3s",  dur: "8.5s",col: "star-cool" },
-  { id: 6, left: "62%", top: "84%", size: 2.5, delay: "5.7s",  dur: "6.5s",col: "star-warm" },
-  { id: 7, left: "4%",  top: "62%", size: 3.4, delay: "0.8s",  dur: "9.5s",col: "" },
+  { id: 0,  left: "8%",  top: "7%",  size: 4.0, delay: "0s",    dur: "7s",   col: "star-blue"   },
+  { id: 1,  left: "72%", top: "4%",  size: 3.5, delay: "2.2s",  dur: "9s",   col: "star-cool"   },
+  { id: 2,  left: "91%", top: "22%", size: 3.2, delay: "4.8s",  dur: "8s",   col: "star-warm"   },
+  { id: 3,  left: "18%", top: "38%", size: 3.8, delay: "1.4s",  dur: "10s",  col: "star-blue"   },
+  { id: 4,  left: "84%", top: "55%", size: 3.0, delay: "6.1s",  dur: "7s",   col: "star-orange" },
+  { id: 5,  left: "38%", top: "71%", size: 3.4, delay: "3.3s",  dur: "8.5s", col: "star-cool"   },
+  { id: 6,  left: "62%", top: "84%", size: 2.8, delay: "5.7s",  dur: "6.5s", col: "star-warm"   },
+  { id: 7,  left: "4%",  top: "62%", size: 3.8, delay: "0.8s",  dur: "9.5s", col: "star-blue"   },
+  { id: 8,  left: "53%", top: "16%", size: 3.2, delay: "3.0s",  dur: "11s",  col: ""             },
+  { id: 9,  left: "28%", top: "92%", size: 2.8, delay: "7.2s",  dur: "8s",   col: "star-orange" },
+  { id: 10, left: "78%", top: "78%", size: 3.5, delay: "1.9s",  dur: "9s",   col: "star-red"    },
+  { id: 11, left: "44%", top: "50%", size: 2.6, delay: "5.1s",  dur: "7.5s", col: "star-blue"   },
 ];
+
+// Meteors — 8 active, varied angle/size/color/timing
 const meteors = [
-  { id: 1, top: "-8%",  left: "14%", delay: "2.2s",  dur: "9s",    w: 200, dir: "right" },
-  { id: 2, top: "-10%", left: "74%", delay: "6.5s",  dur: "11.5s", w: 240, dir: "left"  },
-  { id: 3, top: "-6%",  left: "46%", delay: "13.0s", dur: "10s",   w: 170, dir: "right" },
+  { id: 1, top: "-5%",  left: "18%", delay: "1.4s",  dur: "8s",   w: 270, dir: "right", rot: 32,  warm: false, thick: false },
+  { id: 2, top: "-8%",  left: "74%", delay: "5.5s",  dur: "7s",   w: 210, dir: "left",  rot: -36, warm: false, thick: false },
+  { id: 3, top: "-4%",  left: "46%", delay: "10.2s", dur: "6.5s", w: 185, dir: "right", rot: 40,  warm: true,  thick: false },
+  { id: 4, top: "-9%",  left: "9%",  delay: "15.8s", dur: "9.5s", w: 320, dir: "right", rot: 28,  warm: false, thick: true  },
+  { id: 5, top: "-6%",  left: "88%", delay: "7.8s",  dur: "7.5s", w: 155, dir: "left",  rot: -44, warm: false, thick: false },
+  { id: 6, top: "-3%",  left: "62%", delay: "19.5s", dur: "6s",   w: 140, dir: "left",  rot: -30, warm: true,  thick: false },
+  { id: 7, top: "-7%",  left: "33%", delay: "24.0s", dur: "10s",  w: 295, dir: "right", rot: 35,  warm: false, thick: true  },
+  { id: 8, top: "-5%",  left: "55%", delay: "12.5s", dur: "7s",   w: 230, dir: "left",  rot: -38, warm: false, thick: false },
 ];
 
 // ─── Centered planet anchor ───────────────────────────────────────────────────
@@ -187,10 +208,13 @@ export function AmbientJourney() {
       {/* ── Base deep space ─────────────────────────────────────────────────── */}
       <div className="absolute inset-0" style={{
         background:
-          "radial-gradient(circle at 18% 12%, rgba(248,225,108,.10) 0%, transparent 26%)," +
-          "radial-gradient(circle at 76% 28%, rgba(0,209,255,.13) 0%, transparent 34%)," +
-          "radial-gradient(circle at 54% 58%, rgba(139,92,246,.17) 0%, transparent 42%)," +
-          "linear-gradient(180deg,#03040e 0%,#05041a 50%,#010108 100%)",
+          "radial-gradient(ellipse at 12%  8%,  rgba(248,225,108,.10) 0%, transparent 22%)," +
+          "radial-gradient(ellipse at 82% 16%,  rgba(0,209,255,.10)   0%, transparent 28%)," +
+          "radial-gradient(ellipse at 36% 44%,  rgba(255,70,160,.07)  0%, transparent 20%)," +  // H-alpha pink
+          "radial-gradient(ellipse at 68% 72%,  rgba(139,92,246,.15)  0%, transparent 36%)," +
+          "radial-gradient(ellipse at 92% 58%,  rgba(255,130,40,.06)  0%, transparent 22%)," +  // warm cluster
+          "radial-gradient(ellipse at 22% 80%,  rgba(0,180,255,.07)   0%, transparent 24%)," +
+          "linear-gradient(180deg,#02030c 0%,#04051a 40%,#030412 70%,#010108 100%)",
       }} />
 
       {/* ── Nebula glow — deepens as journey progresses ─────────────────────── */}
@@ -200,25 +224,39 @@ export function AmbientJourney() {
           opacity: nebulaOpacity,
           scale: nebulaScale,
           background:
-            "radial-gradient(ellipse at 70% 28%, rgba(248,225,108,.10) 0%, transparent 30%)," +
-            "radial-gradient(ellipse at 30% 68%, rgba(0,209,255,.14) 0%, transparent 34%)," +
-            "radial-gradient(ellipse at 52% 50%, rgba(139,92,246,.22) 0%, transparent 48%)",
+            "radial-gradient(ellipse at 72% 25%, rgba(248,225,108,.12) 0%, transparent 30%)," +
+            "radial-gradient(ellipse at 28% 65%, rgba(0,209,255,.16)   0%, transparent 34%)," +
+            "radial-gradient(ellipse at 50% 50%, rgba(139,92,246,.24)  0%, transparent 48%)," +
+            "radial-gradient(ellipse at 15% 35%, rgba(255,80,140,.08)  0%, transparent 22%)",
         }} />
 
       {/* ── Sun rays from upper-left ─────────────────────────────────────────── */}
       <motion.div className="sun-rays absolute -left-[18vw] -top-[24vh] h-[76vh] w-[82vw]"
         style={{ opacity: sunRayOpacity }} />
 
-      {/* ── Milky Way luminous band (very faint diagonal haze) ───────────────── */}
+      {/* ── Milky Way band — warm core + cool dust haze ──────────────────────── */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background:
-          "linear-gradient(118deg," +
-          "transparent 15%," +
-          "rgba(160,185,240,0.028) 32%," +
-          "rgba(190,210,255,0.045) 48%," +
-          "rgba(160,185,240,0.028) 64%," +
-          "transparent 80%)",
-        filter: "blur(48px)",
+          "linear-gradient(115deg," +
+          "transparent 10%," +
+          "rgba(255,220,160,0.016) 26%," +
+          "rgba(210,200,255,0.032) 36%," +
+          "rgba(200,215,255,0.055) 46%," +
+          "rgba(255,220,160,0.024) 52%," +
+          "rgba(200,215,255,0.032) 62%," +
+          "rgba(180,190,240,0.018) 72%," +
+          "transparent 84%)",
+        filter: "blur(52px)",
+        mixBlendMode: "screen",
+      }} />
+
+      {/* ── Nebula wisps — subtle colored soft clouds ────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background:
+          "radial-gradient(ellipse 28% 14% at 55% 30%, rgba(180,100,255,0.055) 0%, transparent 100%)," +
+          "radial-gradient(ellipse 20% 10% at 25% 60%, rgba(0,200,255,0.045)   0%, transparent 100%)," +
+          "radial-gradient(ellipse 18% 8%  at 78% 50%, rgba(255,100,80,0.038)  0%, transparent 100%)",
+        filter: "blur(32px)",
         mixBlendMode: "screen",
       }} />
 
@@ -255,14 +293,20 @@ export function AmbientJourney() {
       {/* ── Near stars + meteors (fastest layer) ─────────────────────────────── */}
       <motion.div style={{ y: nearDrift }} className="absolute inset-0">
         {nearStars.map(st => (
-          <span key={st.id} className="star-dot star-near absolute rounded-full bg-white"
+          <span key={st.id} className={`star-dot star-near absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
               animationDelay: st.delay, animationDuration: st.dur }} />
         ))}
         {meteors.map(m => (
-          <span key={m.id} className={`meteor meteor-${m.dir} absolute h-px rounded-full`}
-            style={{ top: m.top, left: m.left, width: m.w,
-              animationDelay: m.delay, animationDuration: m.dur }} />
+          <span
+            key={m.id}
+            className={`meteor meteor-${m.dir} absolute${m.warm ? " meteor-warm" : ""}${m.thick ? " meteor-thick" : ""}`}
+            style={{
+              top: m.top, left: m.left, width: m.w,
+              rotate: `${m.rot}deg`,
+              animationDelay: m.delay, animationDuration: m.dur,
+            }}
+          />
         ))}
       </motion.div>
 

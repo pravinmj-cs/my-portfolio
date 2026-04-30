@@ -139,6 +139,7 @@ export const creativeWorks = [
       "Led the PyCon event management team at HappyFox from scratch. Squeezed every ounce of creative energy into sticker designs, visual identity, and event materials. Pure mouse, pure craft — no AI involved.",
     accent: "from-coral/30 to-sunlit/20",
     placeholder: "pycon-sticker.jpg",
+    image: "/creative/pycon.png",
   },
   {
     id: "wedding",
@@ -149,6 +150,7 @@ export const creativeWorks = [
       "Designed the entire wedding invitation from zero — layout, typography, illustration, print-ready assets. This is what happens when work and life mingled in the best way. Love is a very good design brief.",
     accent: "from-aurora/25 to-reef/20",
     placeholder: "wedding-invite.jpg",
+    image: "/creative/wedding.png",
   },
   {
     id: "packgine-ui",
@@ -159,6 +161,7 @@ export const creativeWorks = [
       "Designed the entire Packgine product interface — from data models to dashboards, compliance bundles to portfolio widgets. Stakeholder retros, enterprise demos, every touchpoint was a creative story told visually.",
     accent: "from-violet-500/25 to-reef/20",
     placeholder: "packgine-ui.jpg",
+    image: "/creative/packgine-ui.png",
   },
   {
     id: "portfolio",
@@ -169,6 +172,7 @@ export const creativeWorks = [
       "A subtle nod to my love for deep tech and space exploration. Earth → Mars → Jupiter → Saturn. This portfolio is itself a creative output — planets, comet progress, ambient starfield, spacecraft — all code.",
     accent: "from-reef/20 to-violet-500/25",
     placeholder: "portfolio.jpg",
+    image: "/creative/portfolio.png",
   },
 ];
 

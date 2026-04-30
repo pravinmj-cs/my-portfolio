@@ -80,7 +80,6 @@ body {
 .star-galaxy {
   opacity: 0.18;
   transform: translateZ(0);
-  /* no animation — these are too far to scintillate */
 }
 
 .star-far  { opacity: 0.26; }
@@ -94,10 +93,12 @@ body {
               0 0 14px 4px rgba(190, 220, 255, 0.22);
 }
 
-/* Colour tints */
-.star-blue { background: #c8e8ff !important; }
-.star-warm { background: #fff4d0 !important; }
-.star-cool { background: #e8f4ff !important; }
+/* Colour tints — spectral types */
+.star-blue   { background: #b8d8ff !important; }   /* O/B type — blue-white    */
+.star-warm   { background: #fff4d0 !important; }   /* F/G type — yellow-white  */
+.star-cool   { background: #e8f4ff !important; }   /* A type   — pure white    */
+.star-orange { background: #ffd090 !important; }   /* K type   — orange        */
+.star-red    { background: #ffb080 !important; }   /* M type   — red-orange    */
 
 /* Prominent bright star — strong glow + diffraction spikes via pseudo-elements */
 .star-bright {
@@ -241,22 +242,71 @@ body {
 .meteor {
   opacity: 0;
   transform: translate3d(0, 0, 0);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.92), rgba(0, 209, 255, 0.25));
-  box-shadow: 0 0 18px rgba(0, 209, 255, 0.42);
-  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  height: 1.5px;
+  border-radius: 0 100px 100px 0;
+  animation-timing-function: ease-in;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
   will-change: transform, opacity;
 }
 
+/* right-traveling — bright head on right end, long fading tail to left */
 .meteor-right {
-  rotate: 38deg;
   animation-name: meteor-down-right;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(200, 225, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.40) 60%,
+    rgba(255, 255, 255, 0.95) 85%,
+    rgba(230, 245, 255, 1.0)  100%
+  );
+  box-shadow: 3px 0 8px 1px rgba(180, 220, 255, 0.65),
+              3px 0 2px 0 rgba(255, 255, 255, 0.90);
 }
 
+/* left-traveling — bright head on left end, long fading tail to right */
 .meteor-left {
-  rotate: -38deg;
   animation-name: meteor-down-left;
+  border-radius: 100px 0 0 100px;
+  background: linear-gradient(90deg,
+    rgba(230, 245, 255, 1.0)  0%,
+    rgba(255, 255, 255, 0.95) 15%,
+    rgba(255, 255, 255, 0.40) 40%,
+    rgba(200, 225, 255, 0.04) 75%,
+    transparent 100%
+  );
+  box-shadow: -3px 0 8px 1px rgba(180, 220, 255, 0.65),
+              -3px 0 2px 0 rgba(255, 255, 255, 0.90);
+}
+
+/* warm iron-meteor variant — orange/yellow tint */
+.meteor-warm.meteor-right {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 180, 60, 0.04) 25%,
+    rgba(255, 220, 120, 0.45) 60%,
+    rgba(255, 245, 180, 0.95) 85%,
+    rgba(255, 250, 210, 1.0)  100%
+  );
+  box-shadow: 3px 0 8px 1px rgba(255, 200, 80, 0.60),
+              3px 0 2px 0 rgba(255, 245, 180, 0.90);
+}
+.meteor-warm.meteor-left {
+  background: linear-gradient(90deg,
+    rgba(255, 250, 210, 1.0)  0%,
+    rgba(255, 245, 180, 0.95) 15%,
+    rgba(255, 220, 120, 0.45) 40%,
+    rgba(255, 180, 60, 0.04)  75%,
+    transparent 100%
+  );
+  box-shadow: -3px 0 8px 1px rgba(255, 200, 80, 0.60),
+              -3px 0 2px 0 rgba(255, 245, 180, 0.90);
+}
+
+/* thick bright meteor — occasional prominent streak */
+.meteor-thick {
+  height: 2.5px !important;
+  filter: brightness(1.25);
 }
 
 .section-shell {
@@ -283,39 +333,17 @@ body {
 }
 
 @keyframes meteor-down-right {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-  8% {
-    opacity: 0.58;
-  }
-  34% {
-    opacity: 0;
-    transform: translate3d(72vw, 74vh, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(72vw, 74vh, 0);
-  }
+  0%   { opacity: 0;    transform: translate3d(0, 0, 0); }
+  3%   { opacity: 0.92; }
+  30%  { opacity: 0;    transform: translate3d(74vw, 76vh, 0); }
+  100% { opacity: 0;    transform: translate3d(74vw, 76vh, 0); }
 }
 
 @keyframes meteor-down-left {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-  8% {
-    opacity: 0.5;
-  }
-  34% {
-    opacity: 0;
-    transform: translate3d(-78vw, 78vh, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(-78vw, 78vh, 0);
-  }
+  0%   { opacity: 0;    transform: translate3d(0, 0, 0); }
+  3%   { opacity: 0.88; }
+  30%  { opacity: 0;    transform: translate3d(-80vw, 80vh, 0); }
+  100% { opacity: 0;    transform: translate3d(-80vw, 80vh, 0); }
 }
 
 @keyframes planet-breathe {
@@ -336,6 +364,21 @@ body {
   50% {
     transform: translate(-50.8%, -49.4%) rotate(1deg) scale(1.018);
   }
+}
+
+/* ── Wedding 3D card float animations ───────────────────────────────────── */
+/* Pure Y bob — 3D rotation is locked on the parent, only position breathes */
+@keyframes wedding-bob-back {
+  0%   { transform: translateY(0px);  }
+  25%  { transform: translateY(-6px); }
+  75%  { transform: translateY(4px);  }
+  100% { transform: translateY(0px);  }
+}
+@keyframes wedding-bob-front {
+  0%   { transform: translateY(0px);  }
+  30%  { transform: translateY(5px);  }
+  70%  { transform: translateY(-7px); }
+  100% { transform: translateY(0px);  }
 }
 
 /* ── Creativity section — animated gradient border ──────────────────────── */

@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionTemplate, useScroll, useSpring, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
-import { ArrowUpRight, Github, GraduationCap, Linkedin, Mail, Menu, MoveDown, Sparkles, Telescope, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, Github, GraduationCap, Heart, Linkedin, Mail, Menu, MoveDown, Paintbrush, Rocket, Sparkles, Telescope, X } from "lucide-react";
 import {
   contributionMix,
   creativeCards,
@@ -461,6 +461,593 @@ function HappyFox() {
   );
 }
 
+// ─── Wedding invite — elevated 3D presentation ───────────────────────────────
+function WeddingInvite3D() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const containerW = useContainerWidth(containerRef);
+
+  // Bokeh sampled from invite palette: deep navy, warm gold, soft pink
+  const bokeh = [
+    { left: "10%", top: "15%", size: 48, color: "rgba(255,200,100,0.18)" },  // gold
+    { left: "82%", top: "10%", size: 32, color: "rgba(255,140,170,0.16)" },  // pink
+    { left: "90%", top: "72%", size: 40, color: "rgba(255,200,100,0.14)" },  // gold
+    { left: "14%", top: "80%", size: 28, color: "rgba(255,150,180,0.14)" },  // pink
+    { left: "50%", top: "5%",  size: 22, color: "rgba(200,220,255,0.14)" },  // cool white
+    { left: "65%", top: "85%", size: 34, color: "rgba(255,200,100,0.12)" },  // gold
+  ];
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0"
+      style={{
+        perspective: "900px",
+        perspectiveOrigin: "50% 45%",
+        background: "radial-gradient(ellipse 100% 90% at 50% 55%, #0c1236 0%, #080d24 50%, #050810 100%)",
+        overflow: "hidden",
+      }}
+    >
+      {/* ── Debris particles drifting across the navy background ── */}
+      <DebrisLayer containerW={containerW} />
+
+      {/* Bokeh — gold + pink, matching the invite palette */}
+      {bokeh.map((b, i) => (
+        <div key={i} className="pointer-events-none absolute rounded-full" style={{
+          left: b.left, top: b.top,
+          width: b.size, height: b.size,
+          background: `radial-gradient(circle, ${b.color} 0%, transparent 70%)`,
+          filter: "blur(14px)",
+          transform: "translate(-50%, -50%)",
+        }} />
+      ))}
+
+      {/* Warm gold ambient — upper left, as if lit from above */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background:
+          "radial-gradient(ellipse 50% 55% at 22% 30%, rgba(200,160,60,0.10) 0%, transparent 60%)," +
+          "radial-gradient(ellipse 44% 50% at 78% 38%, rgba(220,100,140,0.10) 0%, transparent 60%)",
+      }} />
+
+      {/* Floor reflection glow */}
+      <div className="pointer-events-none absolute" style={{
+        bottom: 0, left: "5%", right: "5%", height: "18%",
+        background: "radial-gradient(ellipse 85% 100% at 50% 100%, rgba(160,120,60,0.14) 0%, transparent 70%)",
+        filter: "blur(14px)",
+      }} />
+
+      {/* ── Portrait card — back-left ── */}
+      {/* Outer div: 3D rotation fixed. Inner div: Y float only */}
+      <div className="absolute" style={{
+        width: "42%", left: "4%", top: "50%",
+        transform: "translateY(-52%) rotateY(-26deg) rotateX(5deg) rotateZ(-1.5deg) translateZ(-20px)",
+        transformStyle: "preserve-3d",
+        filter: "brightness(0.86) saturate(0.88)",
+      }}>
+        <div style={{ animation: "wedding-bob-back 9s ease-in-out infinite" }}>
+          <div style={{
+            borderRadius: "10px", overflow: "hidden", position: "relative",
+            boxShadow:
+              "0 2px 5px rgba(0,0,0,0.45)," +
+              "0 10px 24px rgba(0,0,0,0.62)," +
+              "0 28px 56px rgba(0,0,0,0.68)," +
+              "0 40px 72px rgba(160,120,40,0.18)",
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/creative/wedding-portrait.jpg" alt="Wedding invite" style={{ width: "100%", display: "block" }} />
+            <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+              background:"linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 45%, transparent 65%)" }} />
+            <div style={{ position:"absolute", top:0, left:0, right:0, height:"1.5px", pointerEvents:"none",
+              background:"linear-gradient(90deg, transparent, rgba(255,220,140,0.55) 35%, rgba(255,255,220,0.75) 55%, rgba(255,220,140,0.40) 80%, transparent)" }} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Landscape card — front-right ── */}
+      <div className="absolute" style={{
+        width: "56%", right: "2%", top: "50%",
+        transform: "translateY(-48%) rotateY(17deg) rotateX(-4deg) rotateZ(1deg) translateZ(28px)",
+        transformStyle: "preserve-3d",
+      }}>
+        <div style={{ animation: "wedding-bob-front 9s ease-in-out infinite 1.1s" }}>
+          <div style={{
+            borderRadius: "10px", overflow: "hidden", position: "relative",
+            boxShadow:
+              "0 2px 5px rgba(0,0,0,0.40)," +
+              "0 12px 28px rgba(0,0,0,0.58)," +
+              "0 32px 64px rgba(0,0,0,0.65)," +
+              "0 46px 80px rgba(200,100,120,0.16)",
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/creative/wedding-landscape.png" alt="Wedding reception card" style={{ width: "100%", display: "block" }} />
+            <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+              background:"linear-gradient(125deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 38%, transparent 58%)" }} />
+            <div style={{ position:"absolute", top:0, left:0, right:0, height:"1.5px", pointerEvents:"none",
+              background:"linear-gradient(90deg, transparent, rgba(255,220,140,0.45) 28%, rgba(255,255,220,0.72) 52%, rgba(255,220,140,0.35) 78%, transparent)" }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PyCon — asteroid belt ────────────────────────────────────────────────────
+const STICKER_COUNT = 11;
+
+function sr(seed: number) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+
+// Belt lanes: far (top) → near (bottom). Near = bigger, faster (Kepler's law)
+type BeltItem = {
+  id: number; src: string;
+  beltY: number;       // vertical position in belt 0–100%
+  size: number;        // px
+  speed: number;       // seconds to cross full width
+  startFrac: number;   // 0–1 initial x offset (so they're spread on load)
+  rotDir: number;      // +1 / -1
+  rotPeriod: number;   // seconds per full tumble
+  wobbleAmp: number;   // vertical wobble px
+  wobblePeriod: number;
+};
+
+const beltItems: BeltItem[] = Array.from({ length: STICKER_COUNT }, (_, i) => {
+  const r = sr(i * 53 + 17);
+  // Spread stickers across the FULL Y range so every one gets its own lane.
+  // Use a jittered grid: divide 0-100% into 11 equal slots, then nudge randomly.
+  const slotH = 88 / STICKER_COUNT; // 88% total span, leaving 6% margin top/bottom
+  const beltY = 6 + i * slotH + r() * slotH * 0.7; // jitter within slot
+
+  // Depth derived from Y — lower on screen = closer = bigger, faster, brighter
+  const depth = beltY / 94; // 0 (top/far) → 1 (bottom/near)
+
+  const size  = 42 + depth * 92 + r() * 18;        // 42px far → ~140px near
+  const speed = 32 - depth * 22 + r() * 8;         // 32s far  →  10s near
+  const startFrac = i / STICKER_COUNT;              // evenly spaced so all 11 visible at once
+
+  return {
+    id: i,
+    src: `/stickers/${i + 1}.png`,
+    beltY,
+    size,
+    speed,
+    startFrac,
+    rotDir:       r() > 0.5 ? 1 : -1,
+    rotPeriod:    28 - depth * 16 + r() * 8,        // far tumbles slow, near fast
+    wobbleAmp:    2  + depth * 8  + r() * 4,
+    wobblePeriod: 3  + r() * 5,
+  };
+});
+
+// Debris — tiny rock dust particles, reflected sunlight style (bright specks not dark shapes)
+const debrisRocks = Array.from({ length: 200 }, (_, i) => {
+  const r = sr(i * 23 + 5);
+  const tier = r() < 0.40 ? "far" : r() < 0.75 ? "mid" : "near";
+  // Very small — debris should read as texture, not individual objects
+  const w = tier === "far" ? 0.8 + r() * 1.4   // 0.8–2.2px
+          : tier === "mid" ? 1.6 + r() * 2.4   // 1.6–4px
+          :                  2.5 + r() * 3.5;   // 2.5–6px
+  // Slightly elongated horizontally — travel motion feel
+  const h = w * (0.4 + r() * 0.45);
+  // Rock reflects sunlight — off-white, warm light grey, pale stone
+  const color = r() < 0.30 ? "#c8c0b0"   // warm off-white
+              : r() < 0.55 ? "#b0a898"   // stone grey
+              : r() < 0.75 ? "#d4cec4"   // pale chalk
+              : r() < 0.90 ? "#9c9488"   // mid warm grey
+              :               "#e2ddd8";  // almost white
+  return {
+    id: i,
+    beltY: tier === "far" ? 14 + r() * 22 : tier === "mid" ? 36 + r() * 22 : 58 + r() * 24,
+    w, h, color,
+    speed: tier === "far" ? 34 + r() * 20 : tier === "mid" ? 20 + r() * 12 : 9 + r() * 8,
+    startFrac: r(),
+    opacity: tier === "far" ? 0.18 + r() * 0.18 : tier === "mid" ? 0.28 + r() * 0.22 : 0.40 + r() * 0.30,
+  };
+});
+
+function BeltSticker({ item, containerW }: { item: BeltItem; containerW: number }) {
+  // Always travel right→left. ENTER/EXIT sized to the actual card width so
+  // all stickers are visible in frame simultaneously (negative delay = pre-positioned).
+  const ENTER =  containerW * 0.62;
+  const EXIT  = -containerW * 0.62;
+  const depth   = item.beltY / 94;                          // 0=far/top → 1=near/bottom
+  const opacity = 0.38 + depth * 0.58;                      // 0.38 far → 0.96 near
+  const sunlit  = "none";
+
+  return (
+    <motion.div
+      className="pointer-events-none absolute"
+      style={{ top: `${item.beltY}%`, left: "50%", translateY: "-50%", opacity, filter: sunlit,
+               zIndex: Math.round(2 + depth * 3) }}
+      animate={{ x: [ENTER, EXIT] }}
+      transition={{
+        duration: item.speed,
+        repeat: Infinity,
+        ease: "linear",
+        repeatDelay: 0,
+        delay: -(item.startFrac * item.speed),
+      }}
+    >
+      {/* Tumble + gentle vertical wobble */}
+      <motion.div
+        style={{ translateX: "-50%", translateY: "-50%" }}
+        animate={{
+          rotate: [0, item.rotDir * 360],
+          y: [0, item.wobbleAmp, -item.wobbleAmp, 0],
+        }}
+        transition={{
+          rotate: { duration: item.rotPeriod, repeat: Infinity, ease: "linear" },
+          y:      { duration: item.wobblePeriod, repeat: Infinity, ease: "easeInOut" },
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.src} alt="" style={{ width: item.size, height: item.size, objectFit: "contain", display: "block" }} />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// Shared hook — measures rendered container width, used by both card backgrounds
+function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
+  const [w, setW] = useState(400);
+  useEffect(() => {
+    if (!ref.current) return;
+    const update = () => { if (ref.current) setW(ref.current.getBoundingClientRect().width); };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [ref]);
+  return w;
+}
+
+// Reusable debris particle layer — shared between PyCon and Wedding cards
+function DebrisLayer({ containerW }: { containerW: number }) {
+  return (
+    <>
+      {debrisRocks.map(rock => (
+        <motion.div key={rock.id}
+          className="pointer-events-none absolute rounded-full"
+          style={{
+            top: `${rock.beltY}%`, left: "50%", translateY: "-50%",
+            width: rock.w, height: rock.h,
+            background: rock.color,
+            opacity: rock.opacity,
+          }}
+          animate={{ x: [containerW * 0.62, -containerW * 0.62] }}
+          transition={{ duration: rock.speed, repeat: Infinity, ease: "linear", repeatDelay: 0,
+                        delay: -(rock.startFrac * rock.speed) }}
+        />
+      ))}
+    </>
+  );
+}
+
+function StickerAquarium() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const containerW = useContainerWidth(containerRef);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden" }}>
+
+      {/* ── Deep space fill — matches card bg so no hard edge ── */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background: "rgba(3,7,18,0.88)",
+      }} />
+
+      {/* ── Cold deep-space — faint blue-white nebula hints only ── */}
+      <div className="pointer-events-none absolute" style={{
+        top: "-20%", left: "-20%", width: "60%", height: "60%",
+        background: "radial-gradient(circle, rgba(160,190,255,0.06) 0%, transparent 65%)",
+        filter: "blur(30px)",
+      }} />
+
+      {/* ── Background stars — faint deep-field ── */}
+      {Array.from({ length: 55 }, (_, i) => {
+        const r = sr(i * 41 + 99);
+        const bright = r() > 0.88;
+        return <div key={i} className="pointer-events-none absolute rounded-full" style={{
+          left: `${r() * 100}%`, top: `${r() * 100}%`,
+          width:  bright ? r() * 2.0 + 1.2 : r() * 1.2 + 0.4,
+          height: bright ? r() * 2.0 + 1.2 : r() * 1.2 + 0.4,
+          background: "#fff",
+          opacity: bright ? 0.55 + r() * 0.35 : 0.06 + r() * 0.18,
+          boxShadow: bright ? `0 0 4px 1px rgba(220,235,255,0.50)` : "none",
+        }} />;
+      })}
+
+      {/* ── Micro-dust — almost invisible cool haze, no colour cast ── */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background: "radial-gradient(ellipse 100% 40% at 50% 52%, rgba(180,185,200,0.025) 0%, transparent 100%)",
+      }} />
+
+      {/* ── Debris particles ── */}
+      <DebrisLayer containerW={containerW} />
+
+      {/* ── Sticker asteroids — near ones big & fast, far ones tiny & slow ── */}
+      {beltItems.map(item => <BeltSticker key={item.id} item={item} containerW={containerW} />)}
+
+      {/* ── Edge vignette — soft frame, top/bottom heavy to draw eye to belt ── */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background:
+          "linear-gradient(180deg, rgba(3,7,18,0.82) 0%, transparent 22%, transparent 78%, rgba(3,7,18,0.82) 100%)," +
+          "linear-gradient(90deg,  rgba(3,7,18,0.55) 0%, transparent 16%, transparent 84%, rgba(3,7,18,0.55) 100%)",
+      }} />
+    </div>
+  );
+}
+
+// ─── Packgine UI — 3D cylindrical carousel ───────────────────────────────────
+const PACKGINE_SCREENS = [
+  "/creative/packgine-1.png",
+  "/creative/packgine-2.png",
+  "/creative/packgine-3.png",
+  "/creative/packgine-4.png",
+  "/creative/packgine-5.png",
+  "/creative/packgine-6.png",
+];
+const N = PACKGINE_SCREENS.length;
+const STEP = 360 / N; // 60deg per frame
+
+function PackgineCarousel() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const containerW = useContainerWidth(containerRef);
+
+  // For 6 cards at 60° spacing: chord between centres = radius.
+  // To avoid overlap: radius > cardW. Add ~30% breathing room.
+  const cardW  = Math.round(containerW * 0.38);   // smaller cards
+  const cardH  = Math.round(cardW * 0.625);        // 16:10
+  const radius = Math.round(cardW * 1.45);         // radius = cardW × 1.45 → ~45% gap between each card
+
+  return (
+    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden" }}>
+
+      {/* ── Space background ── */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background: "radial-gradient(ellipse 110% 110% at 48% 52%, #09091f 0%, #050510 55%, #030308 100%)",
+      }} />
+      {/* Cool blue-purple nebula wisp */}
+      <div className="pointer-events-none absolute" style={{
+        top: "-10%", right: "-10%", width: "55%", height: "55%",
+        background: "radial-gradient(circle, rgba(120,90,255,0.09) 0%, transparent 65%)",
+        filter: "blur(22px)",
+      }} />
+      <div className="pointer-events-none absolute" style={{
+        bottom: "-10%", left: "-5%", width: "45%", height: "45%",
+        background: "radial-gradient(circle, rgba(0,180,255,0.07) 0%, transparent 65%)",
+        filter: "blur(20px)",
+      }} />
+
+      {/* Background stars */}
+      {Array.from({ length: 48 }, (_, i) => {
+        const r = sr(i * 37 + 77);
+        const bright = r() > 0.90;
+        return <div key={i} className="pointer-events-none absolute rounded-full" style={{
+          left: `${r() * 100}%`, top: `${r() * 100}%`,
+          width: bright ? r() * 1.8 + 1.0 : r() * 1.0 + 0.4,
+          height: bright ? r() * 1.8 + 1.0 : r() * 1.0 + 0.4,
+          background: "#fff",
+          opacity: bright ? 0.60 + r() * 0.30 : 0.06 + r() * 0.16,
+          boxShadow: bright ? "0 0 3px 1px rgba(200,220,255,0.45)" : "none",
+        }} />;
+      })}
+
+      {/* ── Debris drift ── */}
+      <DebrisLayer containerW={containerW} />
+
+      {/* ── 3D cylindrical carousel ── */}
+      <div style={{
+        position: "absolute", inset: 0,
+        perspective: `${Math.round(containerW * 3.2)}px`,
+        perspectiveOrigin: "50% 48%",
+      }}>
+        <motion.div
+          style={{
+            position: "absolute",
+            top: "50%", left: "50%",
+            width: 0, height: 0,
+            transformStyle: "preserve-3d",
+            // slight tilt so it reads as a globe/drum
+            rotateX: -8,
+          }}
+          animate={{ rotateY: [0, -360] }}
+          transition={{ duration: 31, repeat: Infinity, ease: "linear" }}
+        >
+          {PACKGINE_SCREENS.map((src, i) => {
+            const angle = i * STEP;
+            return (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  width: cardW,
+                  height: cardH,
+                  marginLeft: -cardW / 2,
+                  marginTop: -cardH / 2,
+                  transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  boxShadow:
+                    "0 4px 12px rgba(0,0,0,0.55)," +
+                    "0 12px 32px rgba(0,0,0,0.65)," +
+                    "inset 0 1px 0 rgba(255,255,255,0.10)",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                {/* Screen glare */}
+                <div style={{
+                  position: "absolute", inset: 0, pointerEvents: "none",
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 45%)",
+                }} />
+              </div>
+            );
+          })}
+        </motion.div>
+      </div>
+
+      {/* Edge vignette */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background:
+          "linear-gradient(180deg, rgba(3,5,16,0.75) 0%, transparent 18%, transparent 82%, rgba(3,5,16,0.75) 100%)," +
+          "linear-gradient(90deg,  rgba(3,5,16,0.65) 0%, transparent 14%, transparent 86%, rgba(3,5,16,0.65) 100%)",
+      }} />
+    </div>
+  );
+}
+
+// ─── Space Portfolio — telescope targeting scene ─────────────────────────────
+function PortfolioSelf() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const containerW = useContainerWidth(containerRef);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden" }}>
+
+      {/* Deep space base */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background: "radial-gradient(ellipse 120% 120% at 50% 48%, #07091a 0%, #040610 55%, #020308 100%)",
+      }} />
+      {/* Faint teal nebula upper-right */}
+      <div className="pointer-events-none absolute" style={{
+        top: "-15%", right: "-10%", width: "55%", height: "55%",
+        background: "radial-gradient(circle, rgba(0,209,255,0.07) 0%, transparent 65%)",
+        filter: "blur(22px)",
+      }} />
+      {/* Faint violet lower-left */}
+      <div className="pointer-events-none absolute" style={{
+        bottom: "-10%", left: "-8%", width: "45%", height: "45%",
+        background: "radial-gradient(circle, rgba(120,80,255,0.06) 0%, transparent 65%)",
+        filter: "blur(20px)",
+      }} />
+
+      {/* Stars */}
+      {Array.from({ length: 52 }, (_, i) => {
+        const r = sr(i * 61 + 33);
+        const bright = r() > 0.88;
+        return <div key={i} className="pointer-events-none absolute rounded-full" style={{
+          left: `${r() * 100}%`, top: `${r() * 100}%`,
+          width:  bright ? r() * 2 + 1.2 : r() * 1 + 0.4,
+          height: bright ? r() * 2 + 1.2 : r() * 1 + 0.4,
+          background: bright ? "#c8e0ff" : "#fff",
+          opacity: bright ? 0.65 + r() * 0.30 : 0.05 + r() * 0.14,
+          boxShadow: bright ? "0 0 4px 1px rgba(180,220,255,0.50)" : "none",
+        }} />;
+      })}
+
+      {/* Debris */}
+      <DebrisLayer containerW={containerW} />
+
+      {/* ── Telescope targeting UI ── */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {/* Scope ring — outer */}
+        <motion.div
+          className="absolute rounded-full"
+          style={{
+            width: containerW * 0.62, height: containerW * 0.62,
+            border: "1px solid rgba(0,209,255,0.18)",
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+        />
+        {/* Scope ring — inner, counter-rotate */}
+        <motion.div
+          className="absolute rounded-full"
+          style={{
+            width: containerW * 0.42, height: containerW * 0.42,
+            border: "1px solid rgba(0,209,255,0.28)",
+          }}
+          animate={{ rotate: -360 }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+        />
+
+        {/* Corner tick marks on outer ring — top/right/bottom/left */}
+        {[0, 90, 180, 270].map(deg => (
+          <motion.div
+            key={deg}
+            className="absolute"
+            style={{
+              width: containerW * 0.62, height: containerW * 0.62,
+              rotate: deg,
+            }}
+            animate={{ rotate: [deg, deg + 360] }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          >
+            <div style={{
+              position: "absolute", top: 0, left: "50%",
+              transform: "translateX(-50%)",
+              width: 1, height: 8,
+              background: "rgba(0,209,255,0.70)",
+            }} />
+          </motion.div>
+        ))}
+
+        {/* Crosshair lines */}
+        <div className="absolute" style={{ width: containerW * 0.50, height: 1, background: "linear-gradient(90deg, transparent, rgba(0,209,255,0.30) 30%, rgba(0,209,255,0.55) 50%, rgba(0,209,255,0.30) 70%, transparent)" }} />
+        <div className="absolute" style={{ height: containerW * 0.50, width: 1, background: "linear-gradient(180deg, transparent, rgba(0,209,255,0.30) 30%, rgba(0,209,255,0.55) 50%, rgba(0,209,255,0.30) 70%, transparent)" }} />
+
+        {/* Centre target — pulsing locked dot */}
+        <motion.div
+          className="absolute rounded-full"
+          style={{ width: 6, height: 6, background: "#00D1FF" }}
+          animate={{ opacity: [1, 0.3, 1], scale: [1, 1.6, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+        {/* Outer pulse ring */}
+        <motion.div
+          className="absolute rounded-full"
+          style={{ width: 22, height: 22, border: "1px solid rgba(0,209,255,0.55)" }}
+          animate={{ opacity: [0.6, 0, 0.6], scale: [1, 1.8, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+        />
+
+        {/* SIGNAL LOCKED label */}
+        <div className="absolute" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+          <motion.p
+            style={{
+              marginTop: containerW * 0.25,
+              fontFamily: "monospace", fontSize: 9,
+              letterSpacing: "0.22em", textTransform: "uppercase",
+              color: "rgba(255,70,70,0.90)",
+              textAlign: "center", whiteSpace: "nowrap",
+            }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            ◆ SIGNAL LOCKED
+          </motion.p>
+        </div>
+
+        {/* Coordinate readouts — corners */}
+        {[
+          { style: { top: "14%", left: "10%" }, lines: ["RA  07h 45m", "DEC +28° 01′"] },
+          { style: { top: "14%", right: "10%", textAlign: "right" as const }, lines: ["ALT  42.3°", "AZM 118.7°"] },
+          { style: { bottom: "14%", left: "10%" }, lines: ["OBJ  packgine.com", "DST  0.0 AU"] },
+          { style: { bottom: "14%", right: "10%", textAlign: "right" as const }, lines: ["SIG  —▓▓▓▓▓", "SNR  98.4 dB"] },
+        ].map((item, i) => (
+          <div key={i} className="absolute pointer-events-none" style={{ ...item.style }}>
+            {item.lines.map((line, j) => (
+              <p key={j} style={{
+                margin: 0, fontFamily: "monospace", fontSize: 8,
+                letterSpacing: "0.14em", color: "rgba(0,209,255,0.45)",
+                textAlign: item.style.textAlign ?? "left",
+                lineHeight: 1.7,
+              }}>{line}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Edge vignette */}
+      <div className="pointer-events-none absolute inset-0" style={{
+        background:
+          "linear-gradient(180deg, rgba(2,3,8,0.80) 0%, transparent 20%, transparent 80%, rgba(2,3,8,0.80) 100%)," +
+          "linear-gradient(90deg,  rgba(2,3,8,0.65) 0%, transparent 14%, transparent 86%, rgba(2,3,8,0.65) 100%)",
+      }} />
+    </div>
+  );
+}
+
 // ─── Creative work dummy artwork ─────────────────────────────────────────────
 function DummyImage({ id }: { id: string }) {
   if (id === "pycon") return (
@@ -694,7 +1281,7 @@ function Creativity() {
         {/* ── Creative works grid — magnify on hover ── */}
         <div
           className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-          style={{ cursor: TELESCOPE_CURSOR }}
+          style={{ cursor: TELESCOPE_CURSOR, overflow: "visible" }}
         >
           {creativeWorks.map((work, i) => {
             const isHovered    = hoveredId === work.id;
@@ -708,7 +1295,7 @@ function Creativity() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
-                style={{ position: "relative", zIndex: isHovered ? 20 : 1 }}
+                style={{ position: "relative", zIndex: isHovered ? 20 : 1, overflow: "visible" }}
               >
                 {/* Hover-scale article — overflow visible so it scales outward */}
                 <motion.article
@@ -722,33 +1309,54 @@ function Creativity() {
                   style={{
                     overflow: "visible",
                     position: "relative",
-                    // glow ring appears on hovered card
-                    filter: isHovered
-                      ? "drop-shadow(0 0 18px rgba(0,209,255,0.40)) drop-shadow(0 0 40px rgba(139,92,246,0.22))"
-                      : "none",
                   }}
                 >
-                  {/* Inner clipping div — clips content to rounded rect */}
+                  {/* Inner clipping div — glow + border-radius clip lives here.
+                      translateZ(0) + isolation:isolate forces a compositing layer so
+                      overflow:hidden correctly clips transformed children (Safari fix). */}
                   <div
-                    className={cn(
-                      "overflow-hidden rounded-3xl border transition-colors duration-300",
-                      isHovered ? "border-white/30" : "border-white/12"
-                    )}
-                    style={{ background: "rgba(3,7,18,0.72)" }}
+                    className="overflow-hidden rounded-3xl transition-shadow transition-colors duration-300"
+                    style={{
+                      background: "rgba(3,7,18,0.72)",
+                      border: isHovered
+                        ? "1px solid rgba(255,255,255,0.14)"
+                        : "1px solid rgba(255,255,255,0.06)",
+                      boxShadow: isHovered
+                        ? "0 0 22px 4px rgba(0,209,255,0.32), 0 0 55px 12px rgba(139,92,246,0.18)"
+                        : "none",
+                      transform: "translateZ(0)",
+                      isolation: "isolate",
+                    }}
                   >
                     {/* Accent gradient */}
                     <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", work.accent)} />
 
                     {/* Image area — inner image zooms independently */}
-                    <div className="relative aspect-[4/3] overflow-hidden border-b border-white/10">
+                    <div className="relative aspect-[4/3] overflow-hidden border-b border-white/[0.06]">
                       <motion.div
                         className="absolute inset-0"
                         animate={{ scale: isHovered ? 1.10 : 1 }}
                         transition={{ type: "spring", stiffness: 280, damping: 26 }}
                       >
-                        <DummyImage id={work.id} />
+                        {work.id === "pycon" ? (
+                          <StickerAquarium />
+                        ) : work.id === "wedding" ? (
+                          <WeddingInvite3D />
+                        ) : work.id === "packgine-ui" ? (
+                          <PackgineCarousel />
+                        ) : work.id === "portfolio" ? (
+                          <PortfolioSelf />
+                        ) : work.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={work.image}
+                            alt={work.title}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <DummyImage id={work.id} />
+                        )}
                       </motion.div>
-
                     </div>
 
                     {/* Card text */}
@@ -769,23 +1377,28 @@ function Creativity() {
 
         {/* ── Design / Deploy / Delight cards ── */}
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {creativeCards.map((card) => (
+          {creativeCards.map((card) => {
+            const Icon = card.title === "Design"  ? Paintbrush
+                       : card.title === "Deploy"  ? Rocket
+                       : Heart;
+            return (
             <motion.article
               key={card.title}
               whileHover={{ y: -8, rotate: card.title === "Deploy" ? 0 : -1.5 }}
-              className="relative min-h-64 overflow-hidden rounded-3xl border border-white/16 bg-white/10 p-5"
+              className="relative min-h-64 overflow-hidden rounded-3xl border border-white/[0.06] bg-white/10 p-5"
             >
               <div className={cn("absolute inset-0 bg-gradient-to-br opacity-70", card.accent)} />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_15%,rgba(255,255,255,.5),transparent_26%),linear-gradient(180deg,transparent,rgba(3,7,18,.72))]" />
               <div className="relative flex h-full flex-col justify-between">
-                <Sparkles className="text-white" />
+                <Icon size={22} className="text-white/80" />
                 <div>
                   <h3 className="font-display text-4xl font-semibold text-white">{card.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-white/78">{card.body}</p>
                 </div>
               </div>
             </motion.article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
