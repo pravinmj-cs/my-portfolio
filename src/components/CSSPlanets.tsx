@@ -71,50 +71,39 @@ export function EarthPlanet({ className }: { className?: string }) {
 export function MarsPlanet({ className }: { className?: string }) {
   return (
     <div className={className} style={{ position: "relative", width: "100%", height: "100%", borderRadius: "50%" }}>
+      {/* Planet body — rust-red lit face, NO white/cream tones */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden",
         background: `
-          radial-gradient(circle at 26% 28%, rgba(255,210,165,0.78) 0%, transparent 9%),
-          radial-gradient(ellipse at 48% 14%, rgba(205,215,228,0.68) 0%, transparent 8%),
-          radial-gradient(ellipse at 30% 52%, rgba(95,28,8,0.72)   0%, transparent 20%),
-          radial-gradient(ellipse at 62% 64%, rgba(115,38,14,0.60)  0%, transparent 19%),
-          radial-gradient(ellipse at 70% 36%, rgba(130,48,18,0.52)  0%, transparent 16%),
-          radial-gradient(ellipse at 20% 70%, rgba(105,32,10,0.48)  0%, transparent 13%),
-          radial-gradient(ellipse at 82% 20%, rgba(155,72,28,0.38)  0%, transparent 12%),
-          radial-gradient(ellipse at 55% 80%, rgba(80,22,8,0.45)   0%, transparent 12%),
-          radial-gradient(ellipse at 40% 38%, rgba(180,100,42,0.28) 0%, transparent 18%),
-          radial-gradient(ellipse at 25% 46%,
-            #f0c498 0%, #c45820 26%, #883012 52%, #501808 76%, #280c04 100%)
+          radial-gradient(ellipse at 28% 44%,
+            #c85a28 0%, #a83e18 22%, #7a280e 48%, #501008 74%, #200804 100%),
+          radial-gradient(ellipse at 30% 52%, rgba(80,18,6,0.55)  0%, transparent 20%),
+          radial-gradient(ellipse at 62% 64%, rgba(90,24,8,0.48)  0%, transparent 19%),
+          radial-gradient(ellipse at 70% 38%, rgba(100,32,10,0.40) 0%, transparent 16%),
+          radial-gradient(ellipse at 20% 70%, rgba(75,18,5,0.42)  0%, transparent 13%),
+          radial-gradient(ellipse at 55% 80%, rgba(60,12,4,0.38)  0%, transparent 12%)
         `,
         boxShadow: `
           ${SHADOW_DEEP},
-          inset 16px 10px 40px rgba(255,140,60,0.05),
-          0 0 100px rgba(180,60,20,0.08)
+          0 0 80px rgba(160,50,15,0.08)
         `,
       }} />
 
-      {/* Surface texture overlay */}
+      {/* Dark surface regions — craters / highland contrast */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%",
         background: `
-          radial-gradient(ellipse at 36% 26%, rgba(255,205,165,0.22) 0%, transparent 22%),
-          radial-gradient(ellipse at 66% 50%, rgba(145,58,20,0.30)   0%, transparent 18%),
-          radial-gradient(ellipse at 24% 62%, rgba(125,42,14,0.25)   0%, transparent 15%),
-          radial-gradient(ellipse at 72% 74%, rgba(100,35,12,0.28)   0%, transparent 14%)
+          radial-gradient(ellipse at 66% 50%, rgba(60,14,4,0.32)  0%, transparent 18%),
+          radial-gradient(ellipse at 24% 62%, rgba(50,10,3,0.28)  0%, transparent 15%),
+          radial-gradient(ellipse at 72% 74%, rgba(45,10,3,0.26)  0%, transparent 14%),
+          radial-gradient(ellipse at 42% 28%, rgba(140,55,18,0.20) 0%, transparent 16%)
         `,
       }} />
 
-      {/* North polar cap */}
-      <div style={{
-        position: "absolute", width: "24%", height: "16%", top: "2%", left: "38%",
-        borderRadius: "50%",
-        background: "radial-gradient(ellipse, rgba(225,235,245,0.88) 0%, rgba(200,215,228,0.50) 55%, transparent 100%)",
-      }} />
-
-      {/* Thin atmospheric rim — dusty orange */}
+      {/* Dusty atmospheric rim */}
       <div style={{
         position: "absolute", inset: "-2%", borderRadius: "50%", pointerEvents: "none",
-        boxShadow: "0 0 22px 6px rgba(200,90,30,0.14)",
+        boxShadow: "0 0 20px 5px rgba(185,75,22,0.16)",
       }} />
     </div>
   );
@@ -172,12 +161,43 @@ export function JupiterPlanet({ className }: { className?: string }) {
         `,
       }} />
 
-      {/* Great Red Spot */}
+      {/* ── Great Red Spot — layered swirling storm ───────────────────────── */}
       <div style={{
-        position: "absolute", width: "20%", height: "14%", left: "44%", top: "56%",
-        borderRadius: "50%", transform: "rotate(-8deg)",
-        background: "radial-gradient(ellipse at 36% 38%, rgba(218,90,58,0.95) 0%, rgba(178,58,32,0.78) 50%, transparent 100%)",
-      }} />
+        position: "absolute", width: "22%", height: "14%",
+        left: "43%", top: "55%", transform: "rotate(-8deg)",
+      }}>
+        {/* Outer blurred halo — bleeds softly into surrounding bands */}
+        <div style={{
+          position: "absolute", inset: "-32%", borderRadius: "50%",
+          background: "radial-gradient(ellipse at 50% 50%, transparent 36%, rgba(148,48,16,0.26) 50%, rgba(112,34,10,0.16) 66%, transparent 80%)",
+          filter: "blur(5px)",
+        }} />
+        {/* Outer storm ring — dark brownish-red edge */}
+        <div style={{
+          position: "absolute", inset: 0, borderRadius: "50%",
+          background: "radial-gradient(ellipse at 50% 50%, transparent 22%, rgba(182,62,22,0.48) 40%, rgba(158,50,18,0.40) 57%, rgba(115,38,12,0.26) 70%, transparent 84%)",
+          filter: "blur(2px)",
+        }} />
+        {/* Mid storm layer — orange-red interior */}
+        <div style={{
+          position: "absolute", inset: "12%", borderRadius: "50%",
+          background: "radial-gradient(ellipse at 44% 46%, rgba(222,84,36,0.70) 0%, rgba(192,65,26,0.56) 36%, rgba(158,50,18,0.38) 62%, transparent 80%)",
+          filter: "blur(1px)",
+        }} />
+        {/* Swirling conic layer — rotates slowly counterclockwise */}
+        <div style={{
+          position: "absolute", inset: "6%", borderRadius: "50%",
+          background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(195,68,28,0.24) 45deg, transparent 88deg, rgba(172,56,22,0.30) 148deg, transparent 192deg, rgba(195,68,28,0.22) 248deg, transparent 292deg, rgba(172,56,22,0.26) 336deg, transparent 360deg)",
+          animation: "grs-swirl 22s linear infinite reverse",
+          filter: "blur(2.5px)",
+        }} />
+        {/* Inner eye — warm amber-cream, compressed bright center */}
+        <div style={{
+          position: "absolute", inset: "26%", borderRadius: "50%",
+          background: "radial-gradient(ellipse at 46% 44%, rgba(245,180,98,0.66) 0%, rgba(222,140,60,0.48) 42%, rgba(190,100,38,0.28) 70%, transparent 90%)",
+          filter: "blur(1px)",
+        }} />
+      </div>
 
       {/* Polar darkening */}
       <div style={{
@@ -219,16 +239,15 @@ export function SaturnPlanet({ className }: { className?: string }) {
         overflow: "hidden",
         zIndex: 1,
         background: `
-          radial-gradient(circle at 27% 29%, rgba(255,248,215,0.78) 0%, transparent 9%),
+          radial-gradient(circle at 27% 29%, rgba(255,248,215,0.38) 0%, transparent 7%),
           radial-gradient(ellipse at 24% 46%,
-            #faeac8 0%, #cca870 18%, #987040 44%, #624628 68%, #2e1c0c 100%
+            #d8c090 0%, #cca870 18%, #987040 44%, #624628 68%, #2e1c0c 100%
           )
         `,
         boxShadow: `
           inset -56px -24px 92px  rgba(6,3,0,0.97),
           inset -22px -10px 42px  rgba(20,9,3,0.64),
-          inset  16px  10px 36px  rgba(255,215,128,0.06),
-          0 0 80px rgba(192,145,58,0.09)
+          inset  16px  10px 36px  rgba(255,215,128,0.06)
         `,
       }}>
         {/* Subtle atmospheric bands */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionTemplate, useScroll, useSpring, useTransform } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowUpRight, Github, GraduationCap, Heart, Linkedin, Mail, Menu, MoveDown, Paintbrush, Rocket, Sparkles, Telescope, X } from "lucide-react";
 import {
   contributionMix,
@@ -483,6 +483,7 @@ function WeddingInvite3D() {
       style={{
         perspective: "900px",
         perspectiveOrigin: "50% 45%",
+        transform: "translateZ(0)",
         background: "radial-gradient(ellipse 100% 90% at 50% 55%, #0c1236 0%, #080d24 50%, #050810 100%)",
         overflow: "hidden",
       }}
@@ -646,76 +647,109 @@ const debrisRocks = Array.from({ length: 200 }, (_, i) => {
 });
 
 function BeltSticker({ item, containerW }: { item: BeltItem; containerW: number }) {
-  // Always travel right→left. ENTER/EXIT sized to the actual card width so
-  // all stickers are visible in frame simultaneously (negative delay = pre-positioned).
-  const ENTER =  containerW * 0.62;
-  const EXIT  = -containerW * 0.62;
-  const depth   = item.beltY / 94;                          // 0=far/top → 1=near/bottom
-  const opacity = 0.38 + depth * 0.58;                      // 0.38 far → 0.96 near
-  const sunlit  = "none";
+  if (containerW === 0) return null;
+  const enter = Math.round(containerW * 0.62);
+  const exit  = -enter;
+  const kfName = `sticker-drift-${enter}`;
+  const depth   = item.beltY / 94;
+  const opacity = 0.38 + depth * 0.58;
 
   return (
-    <motion.div
-      className="pointer-events-none absolute"
-      style={{ top: `${item.beltY}%`, left: "50%", translateY: "-50%", opacity, filter: sunlit,
-               zIndex: Math.round(2 + depth * 3) }}
-      animate={{ x: [ENTER, EXIT] }}
-      transition={{
-        duration: item.speed,
-        repeat: Infinity,
-        ease: "linear",
-        repeatDelay: 0,
-        delay: -(item.startFrac * item.speed),
-      }}
-    >
-      {/* Tumble + gentle vertical wobble */}
-      <motion.div
-        style={{ translateX: "-50%", translateY: "-50%" }}
-        animate={{
-          rotate: [0, item.rotDir * 360],
-          y: [0, item.wobbleAmp, -item.wobbleAmp, 0],
-        }}
-        transition={{
-          rotate: { duration: item.rotPeriod, repeat: Infinity, ease: "linear" },
-          y:      { duration: item.wobblePeriod, repeat: Infinity, ease: "easeInOut" },
+    <>
+      <style>{`
+        @keyframes ${kfName} {
+          from { transform: translateY(-50%) translateX(${enter}px); }
+          to   { transform: translateY(-50%) translateX(${exit}px); }
+        }
+      `}</style>
+      {/* Horizontal travel — CSS animation on compositor thread */}
+      <div
+        className="pointer-events-none absolute"
+        style={{
+          top: `${item.beltY}%`, left: "50%",
+          opacity,
+          zIndex: Math.round(2 + depth * 3),
+          animationName: kfName,
+          animationDuration: `${item.speed}s`,
+          animationTimingFunction: "linear",
+          animationIterationCount: "infinite",
+          animationDelay: `${-(item.startFrac * item.speed).toFixed(2)}s`,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.src} alt="" style={{ width: item.size, height: item.size, objectFit: "contain", display: "block" }} />
-      </motion.div>
-    </motion.div>
+        {/* Tumble + wobble — Framer Motion, no containerW dependency */}
+        <motion.div
+          style={{ translateX: "-50%", translateY: "-50%" }}
+          animate={{
+            rotate: [0, item.rotDir * 360],
+            y: [0, item.wobbleAmp, -item.wobbleAmp, 0],
+          }}
+          transition={{
+            rotate: { duration: item.rotPeriod, repeat: Infinity, ease: "linear" },
+            y:      { duration: item.wobblePeriod, repeat: Infinity, ease: "easeInOut" },
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.src} alt="" style={{ width: item.size, height: item.size, objectFit: "contain", display: "block" }} />
+        </motion.div>
+      </div>
+    </>
   );
 }
 
-// Shared hook — measures rendered container width, used by both card backgrounds
+// Shared hook — measures container width.
+// useLayoutEffect for the initial read (avoids 0→real flash before first paint),
+// then ResizeObserver for resize-only updates. setW is guarded so it only fires
+// when the value actually changes, preventing spurious re-renders.
 function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
-  const [w, setW] = useState(400);
-  useEffect(() => {
+  const [w, setW] = useState(0);
+  useLayoutEffect(() => {
     if (!ref.current) return;
-    const update = () => { if (ref.current) setW(ref.current.getBoundingClientRect().width); };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    const el = ref.current;
+    // Initial synchronous measurement
+    const initial = el.getBoundingClientRect().width;
+    setW(Math.round(initial));
+    // ResizeObserver for subsequent changes only
+    const ro = new ResizeObserver(entries => {
+      const newW = Math.round(entries[0].contentRect.width);
+      setW(prev => prev === newW ? prev : newW);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [ref]);
   return w;
 }
 
-// Reusable debris particle layer — shared between PyCon and Wedding cards
+// CSS keyframe name injected once — debris runs on compositor thread, zero JS per frame
+const DEBRIS_KF = "debris-drift";
+
 function DebrisLayer({ containerW }: { containerW: number }) {
+  // Don't render until we have a real measurement
+  if (containerW === 0) return null;
+  const enter =  Math.round(containerW * 0.62);
+  const exit  = -Math.round(containerW * 0.62);
   return (
     <>
+      {/* Inject keyframe scoped to measured width */}
+      <style>{`
+        @keyframes ${DEBRIS_KF}-${enter} {
+          from { transform: translateY(-50%) translateX(${enter}px); }
+          to   { transform: translateY(-50%) translateX(${exit}px);  }
+        }
+      `}</style>
       {debrisRocks.map(rock => (
-        <motion.div key={rock.id}
+        <div key={rock.id}
           className="pointer-events-none absolute rounded-full"
           style={{
-            top: `${rock.beltY}%`, left: "50%", translateY: "-50%",
+            top: `${rock.beltY}%`, left: "50%",
             width: rock.w, height: rock.h,
             background: rock.color,
             opacity: rock.opacity,
+            animationName: `${DEBRIS_KF}-${enter}`,
+            animationDuration: `${rock.speed}s`,
+            animationTimingFunction: "linear",
+            animationIterationCount: "infinite",
+            animationDelay: `${-(rock.startFrac * rock.speed).toFixed(2)}s`,
           }}
-          animate={{ x: [containerW * 0.62, -containerW * 0.62] }}
-          transition={{ duration: rock.speed, repeat: Infinity, ease: "linear", repeatDelay: 0,
-                        delay: -(rock.startFrac * rock.speed) }}
         />
       ))}
     </>
@@ -727,7 +761,7 @@ function StickerAquarium() {
   const containerW = useContainerWidth(containerRef);
 
   return (
-    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden" }}>
+    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden", transform: "translateZ(0)" }}>
 
       {/* ── Deep space fill — matches card bg so no hard edge ── */}
       <div className="pointer-events-none absolute inset-0" style={{
@@ -792,14 +826,13 @@ function PackgineCarousel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const containerW = useContainerWidth(containerRef);
 
-  // For 6 cards at 60° spacing: chord between centres = radius.
-  // To avoid overlap: radius > cardW. Add ~30% breathing room.
-  const cardW  = Math.round(containerW * 0.38);   // smaller cards
-  const cardH  = Math.round(cardW * 0.625);        // 16:10
-  const radius = Math.round(cardW * 1.45);         // radius = cardW × 1.45 → ~45% gap between each card
+  // Wait for real measurement before rendering to avoid animation restart flash
+  const cardW  = containerW === 0 ? 0 : Math.round(containerW * 0.38);
+  const cardH  = Math.round(cardW * 0.625);
+  const radius = Math.round(cardW * 1.45);
 
   return (
-    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden" }}>
+    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden", transform: "translateZ(0)" }}>
 
       {/* ── Space background ── */}
       <div className="pointer-events-none absolute inset-0" style={{
@@ -834,8 +867,8 @@ function PackgineCarousel() {
       {/* ── Debris drift ── */}
       <DebrisLayer containerW={containerW} />
 
-      {/* ── 3D cylindrical carousel ── */}
-      <div style={{
+      {/* ── 3D cylindrical carousel — only render once width is known ── */}
+      {containerW > 0 && <div style={{
         position: "absolute", inset: 0,
         perspective: `${Math.round(containerW * 3.2)}px`,
         perspectiveOrigin: "50% 48%",
@@ -884,7 +917,7 @@ function PackgineCarousel() {
             );
           })}
         </motion.div>
-      </div>
+      </div>}
 
       {/* Edge vignette */}
       <div className="pointer-events-none absolute inset-0" style={{
@@ -902,7 +935,7 @@ function PortfolioSelf() {
   const containerW = useContainerWidth(containerRef);
 
   return (
-    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden" }}>
+    <div ref={containerRef} className="absolute inset-0" style={{ overflow: "hidden", transform: "translateZ(0)" }}>
 
       {/* Deep space base */}
       <div className="pointer-events-none absolute inset-0" style={{
@@ -1331,8 +1364,8 @@ function Creativity() {
                     {/* Accent gradient */}
                     <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", work.accent)} />
 
-                    {/* Image area — inner image zooms independently */}
-                    <div className="relative aspect-[4/3] overflow-hidden border-b border-white/[0.06]">
+                    {/* Image area — contain:paint isolates repaints without breaking layout */}
+                    <div className="relative aspect-[4/3] overflow-hidden border-b border-white/[0.06]" style={{ contain: "paint" }}>
                       <motion.div
                         className="absolute inset-0"
                         animate={{ scale: isHovered ? 1.10 : 1 }}

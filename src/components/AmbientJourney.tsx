@@ -97,16 +97,14 @@ const brightStars = [
   { id: 11, left: "44%", top: "50%", size: 2.6, delay: "5.1s",  dur: "7.5s", col: "star-blue"   },
 ];
 
-// Meteors — 8 active, varied angle/size/color/timing
-const meteors = [
-  { id: 1, top: "-5%",  left: "18%", delay: "1.4s",  dur: "8s",   w: 270, dir: "right", rot: 32,  warm: false, thick: false },
-  { id: 2, top: "-8%",  left: "74%", delay: "5.5s",  dur: "7s",   w: 210, dir: "left",  rot: -36, warm: false, thick: false },
-  { id: 3, top: "-4%",  left: "46%", delay: "10.2s", dur: "6.5s", w: 185, dir: "right", rot: 40,  warm: true,  thick: false },
-  { id: 4, top: "-9%",  left: "9%",  delay: "15.8s", dur: "9.5s", w: 320, dir: "right", rot: 28,  warm: false, thick: true  },
-  { id: 5, top: "-6%",  left: "88%", delay: "7.8s",  dur: "7.5s", w: 155, dir: "left",  rot: -44, warm: false, thick: false },
-  { id: 6, top: "-3%",  left: "62%", delay: "19.5s", dur: "6s",   w: 140, dir: "left",  rot: -30, warm: true,  thick: false },
-  { id: 7, top: "-7%",  left: "33%", delay: "24.0s", dur: "10s",  w: 295, dir: "right", rot: 35,  warm: false, thick: true  },
-  { id: 8, top: "-5%",  left: "55%", delay: "12.5s", dur: "7s",   w: 230, dir: "left",  rot: -38, warm: false, thick: false },
+// Shooting stars — all travel top-left → bottom-right at 42°
+// Staggered delays so they never cluster. Long dur = rare but dramatic when they appear.
+const shootingStars = [
+  { id: 1, top: "3%",  left: "5%",  delay: "2.0s",  dur: "20s", big: false },
+  { id: 2, top: "6%",  left: "28%", delay: "13.0s", dur: "25s", big: false },
+  { id: 3, top: "2%",  left: "52%", delay: "22.5s", dur: "30s", big: true  },
+  { id: 4, top: "8%",  left: "15%", delay: "7.0s",  dur: "28s", big: false },
+  { id: 5, top: "4%",  left: "40%", delay: "17.5s", dur: "22s", big: false },
 ];
 
 // ─── Centered planet anchor ───────────────────────────────────────────────────
@@ -118,8 +116,8 @@ function PlanetAnchor({
   x: MotionValue<number> | MotionValue<string>; y: MotionValue<number> | MotionValue<string>; scale: MotionValue<number>; opacity: MotionValue<number>; rotate?: MotionValue<number>; children: React.ReactNode; className?: string;
 }) {
   return (
-    // Static CSS centers the anchor point at mid-screen
-    <div className="pointer-events-none absolute left-1/2 top-[44%]">
+    // zIndex:10 ensures planets always paint above all star/meteor layers
+    <div className="pointer-events-none absolute left-1/2 top-[44%]" style={{ zIndex: 10 }}>
       <motion.div
         className={className}
         style={{
@@ -175,28 +173,27 @@ export function AmbientJourney() {
 
   // ── Earth: you are launching from home ──────────────────────────────────────
   // Starts close (large), shrinks as you depart, drifts slightly upper-right
-  const earthOp = useTransform(s, [0, 0.04, 0.17, 0.25], [0, 0.82, 0.65, 0]);
+  // Opacity hits exactly 1.0 at peak — planet is fully opaque, no stars bleed through.
+  // Fast fade-in at approach, fast fade-out at departure.
+  const earthOp = useTransform(s, [0, 0.05, 0.10, 0.18, 0.23, 0.25], [0, 0.55, 1.0, 1.0, 0.55, 0]);
   const earthSc = useTransform(s, [0, 0.05, 0.17, 0.25], [1.0, 1.15, 0.45, 0.03]);
   const earthX  = useTransform(s, [0, 0.05, 0.17, 0.25], ["8vw",  "8vw",  "18vw",  "30vw"]);
   const earthY  = useTransform(s, [0, 0.05, 0.17, 0.25], ["0vh",  "-2vh", "-10vh", "-22vh"]);
 
   // ── Mars: first pitstop ──────────────────────────────────────────────────────
-  // Tiny speck → rushes at you → fills frame → rockets below-left
-  const marsOp = useTransform(s, [0.19, 0.27, 0.33, 0.40, 0.46], [0, 0.50, 0.80, 0.48, 0]);
+  const marsOp = useTransform(s, [0.19, 0.27, 0.31, 0.38, 0.43, 0.46], [0, 0.55, 1.0, 1.0, 0.55, 0]);
   const marsSc = useTransform(s, [0.19, 0.33, 0.40, 0.46],        [0.03, 2.2,  0.7,  0.03]);
   const marsX  = useTransform(s, [0.19, 0.33, 0.40, 0.46],        ["6vw",  "0vw",  "-6vw",  "-18vw"]);
   const marsY  = useTransform(s, [0.19, 0.33, 0.40, 0.46],        ["4vh",  "0vh",  "10vh",  "26vh"]);
 
   // ── Jupiter: second pitstop — orbital pressure ───────────────────────────────
-  // Biggest flyby — at peak it fills 2.5× the viewport
-  const jupOp = useTransform(s, [0.39, 0.48, 0.55, 0.62, 0.67], [0, 0.45, 0.85, 0.48, 0]);
+  const jupOp = useTransform(s, [0.39, 0.48, 0.53, 0.60, 0.64, 0.67], [0, 0.55, 1.0, 1.0, 0.55, 0]);
   const jupSc = useTransform(s, [0.39, 0.55, 0.62, 0.67],        [0.03, 2.6,  0.8,  0.03]);
   const jupX  = useTransform(s, [0.39, 0.55, 0.62, 0.67],        ["7vw",  "0vw",  "-7vw",  "-20vw"]);
   const jupY  = useTransform(s, [0.39, 0.55, 0.62, 0.67],        ["4vh",  "0vh",  "12vh",  "28vh"]);
 
   // ── Saturn: destination — you fly INTO it ────────────────────────────────────
-  // Grows endlessly. Never exits. You arrive here.
-  const satOp = useTransform(s, [0.60, 0.70, 0.82, 0.93, 1.0], [0, 0.48, 0.85, 0.90, 0.62]);
+  const satOp = useTransform(s, [0.60, 0.68, 0.74, 0.93, 1.0], [0, 0.55, 1.0, 1.0, 0.72]);
   const satSc = useTransform(s, [0.60, 0.82, 0.93, 1.0],        [0.03, 2.0,  3.0,  4.0]);
   const satX  = useTransform(s, [0.60, 0.82, 1.0],              ["6vw",  "2vw",  "0vw"]);
   const satY  = useTransform(s, [0.60, 0.82, 1.0],              ["4vh",  "0vh",  "-2vh"]);
@@ -271,7 +268,7 @@ export function AmbientJourney() {
       </div>
 
       {/* ── Far stars (barely move — they are distant suns) ──────────────────── */}
-      <motion.div style={{ y: farDrift }} className="absolute inset-0">
+      <motion.div style={{ y: farDrift, willChange: "transform" }} className="absolute inset-0">
         {farStars.map(st => (
           <span key={st.id}
             className={`star-dot star-far absolute rounded-full bg-white ${st.col}`}
@@ -281,7 +278,7 @@ export function AmbientJourney() {
       </motion.div>
 
       {/* ── Mid stars ────────────────────────────────────────────────────────── */}
-      <motion.div style={{ y: midDrift }} className="absolute inset-0">
+      <motion.div style={{ y: midDrift, willChange: "transform" }} className="absolute inset-0">
         {midStars.map(st => (
           <span key={st.id}
             className={`star-dot star-mid absolute rounded-full bg-white ${st.col}`}
@@ -291,23 +288,76 @@ export function AmbientJourney() {
       </motion.div>
 
       {/* ── Near stars + meteors (fastest layer) ─────────────────────────────── */}
-      <motion.div style={{ y: nearDrift }} className="absolute inset-0">
+      <motion.div style={{ y: nearDrift, willChange: "transform" }} className="absolute inset-0">
         {nearStars.map(st => (
           <span key={st.id} className={`star-dot star-near absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
               animationDelay: st.delay, animationDuration: st.dur }} />
         ))}
-        {meteors.map(m => (
-          <span
-            key={m.id}
-            className={`meteor meteor-${m.dir} absolute${m.warm ? " meteor-warm" : ""}${m.thick ? " meteor-thick" : ""}`}
-            style={{
-              top: m.top, left: m.left, width: m.w,
-              rotate: `${m.rot}deg`,
-              animationDelay: m.delay, animationDuration: m.dur,
-            }}
-          />
-        ))}
+        {shootingStars.map(m => {
+          // SVG shooting star: bright warm head + long tapered tail.
+          // Rotation is baked into the keyframe (rotate(42deg) translateX) so
+          // NO inline transform needed here — keyframe won't override it.
+          const hw      = m.big ? 3.2 : 2.2;     // head radius
+          const tailLen = m.big ? 220 : 170;      // long dramatic tail
+          const svgW    = tailLen + 20;
+          const svgH    = 24;
+          const cx      = svgW - 8;               // head at right end (leading edge)
+          const cy      = svgH / 2;
+          return (
+            <span
+              key={m.id}
+              className="shooting-star"
+              style={{
+                top: m.top, left: m.left,
+                animationName: "shooting-star",
+                animationDelay: m.delay,
+                animationDuration: m.dur,
+              }}
+            >
+              <svg width={svgW} height={svgH} style={{ overflow: "visible" }}>
+                <defs>
+                  {/* Warm yellow-white tail gradient — fades from nothing to head */}
+                  <linearGradient id={`st-${m.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%"   stopColor="rgba(255,240,180,0)"    />
+                    <stop offset="40%"  stopColor="rgba(255,235,160,0.08)" />
+                    <stop offset="72%"  stopColor="rgba(255,230,140,0.38)" />
+                    <stop offset="90%"  stopColor="rgba(255,245,200,0.72)" />
+                    <stop offset="100%" stopColor="rgba(255,255,230,0.92)" />
+                  </linearGradient>
+                  {/* Head glow */}
+                  <radialGradient id={`sg-${m.id}`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   stopColor="#fffde8" stopOpacity="1"   />
+                    <stop offset="35%"  stopColor="#ffe88a" stopOpacity="0.7" />
+                    <stop offset="100%" stopColor="#ffcc44" stopOpacity="0"   />
+                  </radialGradient>
+                  <filter id={`sf-${m.id}`}>
+                    <feGaussianBlur stdDeviation="2.5" />
+                  </filter>
+                </defs>
+
+                {/* Tail — straight, tapers from transparent to near-head */}
+                <rect
+                  x={4} y={cy - (m.big ? 1.2 : 0.85)}
+                  width={tailLen - 8} height={m.big ? 2.4 : 1.7}
+                  rx="1"
+                  fill={`url(#st-${m.id})`}
+                />
+                {/* Soft glow halo around head */}
+                <circle cx={cx} cy={cy} r={hw * 5}
+                  fill={`url(#sg-${m.id})`}
+                  filter={`url(#sf-${m.id})`}
+                  opacity={m.big ? 0.85 : 0.70}
+                />
+                {/* Bright head dot */}
+                <circle cx={cx} cy={cy} r={hw}
+                  fill="#fffde8"
+                  style={{ filter: "drop-shadow(0 0 4px rgba(255,220,100,0.90)) drop-shadow(0 0 8px rgba(255,200,60,0.55))" }}
+                />
+              </svg>
+            </span>
+          );
+        })}
       </motion.div>
 
       {/* ── Bright notable stars — fixed, no parallax, diffraction spikes ────── */}

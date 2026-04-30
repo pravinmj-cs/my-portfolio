@@ -239,74 +239,14 @@ body {
   filter: blur(18px);
 }
 
-.meteor {
+/* ── Shooting star — SVG-based, see AmbientJourney.tsx ── */
+.shooting-star {
   opacity: 0;
-  transform: translate3d(0, 0, 0);
-  height: 1.5px;
-  border-radius: 0 100px 100px 0;
+  will-change: transform, opacity;
   animation-timing-function: ease-in;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
-  will-change: transform, opacity;
-}
-
-/* right-traveling — bright head on right end, long fading tail to left */
-.meteor-right {
-  animation-name: meteor-down-right;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(200, 225, 255, 0.04) 25%,
-    rgba(255, 255, 255, 0.40) 60%,
-    rgba(255, 255, 255, 0.95) 85%,
-    rgba(230, 245, 255, 1.0)  100%
-  );
-  box-shadow: 3px 0 8px 1px rgba(180, 220, 255, 0.65),
-              3px 0 2px 0 rgba(255, 255, 255, 0.90);
-}
-
-/* left-traveling — bright head on left end, long fading tail to right */
-.meteor-left {
-  animation-name: meteor-down-left;
-  border-radius: 100px 0 0 100px;
-  background: linear-gradient(90deg,
-    rgba(230, 245, 255, 1.0)  0%,
-    rgba(255, 255, 255, 0.95) 15%,
-    rgba(255, 255, 255, 0.40) 40%,
-    rgba(200, 225, 255, 0.04) 75%,
-    transparent 100%
-  );
-  box-shadow: -3px 0 8px 1px rgba(180, 220, 255, 0.65),
-              -3px 0 2px 0 rgba(255, 255, 255, 0.90);
-}
-
-/* warm iron-meteor variant — orange/yellow tint */
-.meteor-warm.meteor-right {
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255, 180, 60, 0.04) 25%,
-    rgba(255, 220, 120, 0.45) 60%,
-    rgba(255, 245, 180, 0.95) 85%,
-    rgba(255, 250, 210, 1.0)  100%
-  );
-  box-shadow: 3px 0 8px 1px rgba(255, 200, 80, 0.60),
-              3px 0 2px 0 rgba(255, 245, 180, 0.90);
-}
-.meteor-warm.meteor-left {
-  background: linear-gradient(90deg,
-    rgba(255, 250, 210, 1.0)  0%,
-    rgba(255, 245, 180, 0.95) 15%,
-    rgba(255, 220, 120, 0.45) 40%,
-    rgba(255, 180, 60, 0.04)  75%,
-    transparent 100%
-  );
-  box-shadow: -3px 0 8px 1px rgba(255, 200, 80, 0.60),
-              -3px 0 2px 0 rgba(255, 245, 180, 0.90);
-}
-
-/* thick bright meteor — occasional prominent streak */
-.meteor-thick {
-  height: 2.5px !important;
-  filter: brightness(1.25);
+  position: absolute;
 }
 
 .section-shell {
@@ -332,18 +272,19 @@ body {
   }
 }
 
-@keyframes meteor-down-right {
-  0%   { opacity: 0;    transform: translate3d(0, 0, 0); }
-  3%   { opacity: 0.92; }
-  30%  { opacity: 0;    transform: translate3d(74vw, 76vh, 0); }
-  100% { opacity: 0;    transform: translate3d(74vw, 76vh, 0); }
+/* Shooting star — top-left → bottom-right, rotation baked in so it doesn't get
+   overridden by the translation keyframe. rotate(42deg) then translateX moves
+   the star along its own pointing axis — head always leads. */
+@keyframes shooting-star {
+  0%   { opacity: 0;    transform: rotate(42deg) translateX(0); }
+  3%   { opacity: 0.90; transform: rotate(42deg) translateX(0); }
+  13%  { opacity: 0;    transform: rotate(42deg) translateX(38vw); }
+  100% { opacity: 0;    transform: rotate(42deg) translateX(38vw); }
 }
 
-@keyframes meteor-down-left {
-  0%   { opacity: 0;    transform: translate3d(0, 0, 0); }
-  3%   { opacity: 0.88; }
-  30%  { opacity: 0;    transform: translate3d(-80vw, 80vh, 0); }
-  100% { opacity: 0;    transform: translate3d(-80vw, 80vh, 0); }
+@keyframes grs-swirl {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @keyframes planet-breathe {
@@ -407,7 +348,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .star-dot,
-  .meteor {
+  .shooting-star {
     animation: none;
   }
 }
