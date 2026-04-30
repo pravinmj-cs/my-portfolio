@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { EarthPlanet, JupiterPlanet, MarsPlanet, SaturnPlanet } from "./CSSPlanets";
 
 // ─── Deterministic star data (LCG — no hydration mismatch) ───────────────────
@@ -94,7 +94,7 @@ const meteors = [
 function PlanetAnchor({
   x, y, scale, opacity, rotate, children, className,
 }: {
-  x: any; y: any; scale: any; opacity: any; rotate?: any; children: React.ReactNode; className?: string;
+  x: MotionValue<number> | MotionValue<string>; y: MotionValue<number> | MotionValue<string>; scale: MotionValue<number>; opacity: MotionValue<number>; rotate?: MotionValue<number>; children: React.ReactNode; className?: string;
 }) {
   return (
     // Static CSS centers the anchor point at mid-screen

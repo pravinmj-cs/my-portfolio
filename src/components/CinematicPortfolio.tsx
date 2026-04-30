@@ -238,7 +238,7 @@ function Hero() {
             <span className="text-reef">→</span> Founding Technical / Product Architect.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-starlight/58 sm:text-base sm:leading-7">
-            I don't just write code. I turn complexity into systems people can depend on.
+            I don&apos;t just write code. I turn complexity into systems people can depend on.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-xs text-starlight/68 sm:text-sm" style={{ width: "fit-content" }}>
             <GraduationCap size={15} className="text-sunlit shrink-0" />
@@ -670,8 +670,8 @@ function Creativity() {
                 </p>
                 <p className="text-sm leading-6 text-starlight/65">
                   At HappyFox, I was given a small opportunity to explore design through the PyCon event team.
-                  I didn't treat it as a side task. I treated it as a new dimension — and squeezed every ounce
-                  of creative energy out of it. This wasn't a blog post about it.{" "}
+                  I didn&apos;t treat it as a side task. I treated it as a new dimension — and squeezed every ounce
+                  of creative energy out of it. This wasn&apos;t a blog post about it.{" "}
                   <span className="text-white font-medium">It was an identity unlock.</span>
                 </p>
                 <p className="text-sm leading-6 text-starlight/65">
@@ -862,7 +862,7 @@ function Beyond() {
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-starlight/74">
           The ability to take complexity, ambiguity, and messy real-world systems — and turn them into
-          products that scale. That's what every phase of this journey was building toward.
+          products that scale. That&apos;s what every phase of this journey was building toward.
         </p>
         <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-starlight/52">
           From Earth → Mars → Jupiter → Saturn. This was never about changing jobs.
