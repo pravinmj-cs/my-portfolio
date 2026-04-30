@@ -1,0 +1,370 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --font-inter: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-space: "Space Grotesk", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --glass: rgba(255, 255, 255, 0.075);
+  --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: 5.75rem;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #030712;
+  color: #f8fbff;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+::selection {
+  background: rgba(0, 209, 255, 0.35);
+  color: white;
+}
+
+.glass {
+  border: 1px solid var(--glass-border);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
+    var(--glass);
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+}
+
+.ambient-stage {
+  contain: paint;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.045;
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black, transparent 78%);
+}
+
+/* ── Comet progress — SVG-based in CinematicPortfolio.tsx, no CSS rules needed ── */
+
+/* ── Star depth layers ───────────────────────────────────────────────────── */
+.star-dot {
+  opacity: 0.36;
+  transform: translateZ(0);
+  animation-name: star-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: opacity, transform;
+}
+
+/* Galaxy dust — static, no twinkle, just density */
+.star-galaxy {
+  opacity: 0.18;
+  transform: translateZ(0);
+  /* no animation — these are too far to scintillate */
+}
+
+.star-far  { opacity: 0.26; }
+.star-mid  {
+  opacity: 0.44;
+  box-shadow: 0 0 4px 1px rgba(200, 228, 255, 0.40);
+}
+.star-near {
+  opacity: 0.72;
+  box-shadow: 0 0 6px 2px rgba(210, 235, 255, 0.55),
+              0 0 14px 4px rgba(190, 220, 255, 0.22);
+}
+
+/* Colour tints */
+.star-blue { background: #c8e8ff !important; }
+.star-warm { background: #fff4d0 !important; }
+.star-cool { background: #e8f4ff !important; }
+
+/* Prominent bright star — strong glow + diffraction spikes via pseudo-elements */
+.star-bright {
+  opacity: 0.92;
+  box-shadow:
+    0 0  4px 2px  rgba(255, 255, 255, 0.95),
+    0 0 12px 5px  rgba(210, 235, 255, 0.60),
+    0 0 28px 10px rgba(180, 220, 255, 0.25);
+  animation-name: star-bright-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: opacity, transform;
+  position: relative;
+  overflow: visible;
+}
+/* Horizontal spike */
+.star-bright::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.35) 30%,
+    rgba(255,255,255,0.75) 50%,
+    rgba(255,255,255,0.35) 70%,
+    transparent 100%);
+  pointer-events: none;
+}
+/* Vertical spike */
+.star-bright::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  width: 36px; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.30) 30%,
+    rgba(255,255,255,0.70) 50%,
+    rgba(255,255,255,0.30) 70%,
+    transparent 100%);
+  pointer-events: none;
+}
+
+@keyframes star-bright-pulse {
+  0%, 100% { opacity: 0.82; transform: translateZ(0) scale(1);    }
+  50%       { opacity: 1.00; transform: translateZ(0) scale(1.08); }
+}
+
+/* ── Warp transit layer ──────────────────────────────────────────────────── */
+.warp-layer {
+  background:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(0, 209, 255, 0.025) 0.4deg,
+      transparent 0.8deg
+    );
+  filter: blur(1px);
+  mix-blend-mode: screen;
+}
+
+.sun-rays {
+  transform: translateZ(0) rotate(-6deg);
+  background:
+    linear-gradient(105deg, rgba(255, 244, 190, 0.28), transparent 24%),
+    linear-gradient(116deg, rgba(255, 255, 255, 0.18), transparent 35%),
+    linear-gradient(128deg, rgba(0, 209, 255, 0.1), transparent 48%);
+  filter: blur(16px);
+  mix-blend-mode: screen;
+  will-change: opacity;
+}
+
+.planet-system,
+.saturn-system {
+  transform-origin: center;
+  will-change: transform, opacity;
+  animation: planet-breathe 10s ease-in-out infinite;
+}
+
+.saturn-system {
+  animation: saturn-drift 12s ease-in-out infinite;
+  overflow: visible;
+}
+
+/* Atmospheric glow rings around each planet */
+.planet-glow {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: planet-breathe 10s ease-in-out infinite;
+}
+
+.planet-glow-earth {
+  background: radial-gradient(
+    circle at center,
+    transparent 46%,
+    rgba(60, 140, 255, 0.18) 54%,
+    rgba(30, 90, 220, 0.10) 62%,
+    transparent 72%
+  );
+  filter: blur(12px);
+}
+
+.planet-glow-mars {
+  background: radial-gradient(
+    circle at center,
+    transparent 44%,
+    rgba(210, 80, 35, 0.20) 52%,
+    rgba(180, 60, 20, 0.10) 62%,
+    transparent 72%
+  );
+  filter: blur(14px);
+}
+
+.planet-glow-jupiter {
+  background: radial-gradient(
+    circle at center,
+    transparent 44%,
+    rgba(220, 155, 65, 0.18) 52%,
+    rgba(200, 130, 50, 0.08) 63%,
+    transparent 74%
+  );
+  filter: blur(16px);
+}
+
+.planet-glow-saturn {
+  background: radial-gradient(
+    circle at center,
+    transparent 44%,
+    rgba(220, 185, 95, 0.16) 52%,
+    rgba(200, 160, 75, 0.08) 63%,
+    transparent 74%
+  );
+  filter: blur(18px);
+}
+
+.meteor {
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.92), rgba(0, 209, 255, 0.25));
+  box-shadow: 0 0 18px rgba(0, 209, 255, 0.42);
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+  will-change: transform, opacity;
+}
+
+.meteor-right {
+  rotate: 38deg;
+  animation-name: meteor-down-right;
+}
+
+.meteor-left {
+  rotate: -38deg;
+  animation-name: meteor-down-left;
+}
+
+.section-shell {
+  min-height: 100svh;
+  padding: 7rem 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .section-shell {
+    padding: 8rem 2rem;
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: translateZ(0) scale(0.92);
+  }
+  48% {
+    opacity: 0.72;
+    transform: translateZ(0) scale(1.18);
+  }
+}
+
+@keyframes meteor-down-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  8% {
+    opacity: 0.58;
+  }
+  34% {
+    opacity: 0;
+    transform: translate3d(72vw, 74vh, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(72vw, 74vh, 0);
+  }
+}
+
+@keyframes meteor-down-left {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  8% {
+    opacity: 0.5;
+  }
+  34% {
+    opacity: 0;
+    transform: translate3d(-78vw, 78vh, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-78vw, 78vh, 0);
+  }
+}
+
+@keyframes planet-breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1deg) scale(1);
+  }
+  50% {
+    transform: translate3d(-1.2%, 0.8%, 0) rotate(1deg) scale(1.015);
+  }
+}
+
+@keyframes saturn-drift {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(-2deg) scale(1);
+  }
+  50% {
+    transform: translate(-50.8%, -49.4%) rotate(1deg) scale(1.018);
+  }
+}
+
+/* ── Creativity section — animated gradient border ──────────────────────── */
+@keyframes creativity-gradient {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+@keyframes creativity-pulse {
+  0%, 100% { opacity: 0;   }
+  50%       { opacity: 1;   }
+}
+
+/* ── Glass sweep — full pill shine, left → right, like a waxed floor gleam ── */
+@keyframes glass-sweep {
+  0%        { opacity: 0;   transform: translateX(-250%) skewX(-18deg); }
+  4%        { opacity: 1;   }
+  22%       { opacity: 0;   transform: translateX(450%) skewX(-18deg); }
+  100%      { opacity: 0;   transform: translateX(450%) skewX(-18deg); }
+}
+
+.glass-sweep {
+  animation: glass-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-dot,
+  .meteor {
+    animation: none;
+  }
+}

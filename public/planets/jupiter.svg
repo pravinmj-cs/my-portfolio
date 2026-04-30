@@ -1,0 +1,40 @@
+<svg width="1500" height="1500" viewBox="0 0 1500 1500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="disc"><circle cx="750" cy="750" r="625"/></clipPath>
+    <filter id="flow" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".007 .028" numOctaves="5" seed="47"/>
+      <feDisplacementMap in="SourceGraphic" scale="38"/>
+    </filter>
+    <radialGradient id="shade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(450 330) rotate(42) scale(930)">
+      <stop offset=".12" stop-color="white" stop-opacity=".58"/>
+      <stop offset=".36" stop-color="white" stop-opacity=".08"/>
+      <stop offset=".72" stop-color="#08050A" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#010104" stop-opacity=".92"/>
+    </radialGradient>
+    <filter id="glow" x="-45%" y="-45%" width="190%" height="190%"><feGaussianBlur stdDeviation="32"/></filter>
+  </defs>
+  <circle cx="750" cy="750" r="640" fill="#F6C678" opacity=".18" filter="url(#glow)"/>
+  <g clip-path="url(#disc)">
+    <circle cx="750" cy="750" r="625" fill="#DBAF78"/>
+    <g filter="url(#flow)">
+      <rect x="95" y="140" width="1300" height="92" fill="#F9E2B1"/>
+      <rect x="95" y="232" width="1300" height="86" fill="#B97950"/>
+      <rect x="95" y="318" width="1300" height="72" fill="#F5D49A"/>
+      <rect x="95" y="390" width="1300" height="114" fill="#8D5B53"/>
+      <rect x="95" y="504" width="1300" height="74" fill="#EED19C"/>
+      <rect x="95" y="578" width="1300" height="128" fill="#C48658"/>
+      <rect x="95" y="706" width="1300" height="78" fill="#FFF0C8"/>
+      <rect x="95" y="784" width="1300" height="122" fill="#9B6E62"/>
+      <rect x="95" y="906" width="1300" height="94" fill="#F0C58A"/>
+      <rect x="95" y="1000" width="1300" height="128" fill="#C88354"/>
+      <rect x="95" y="1128" width="1300" height="145" fill="#E9C790"/>
+      <path d="M238 348c232 48 450 52 654 10 150-31 284-32 404-2" stroke="#FFF3D0" stroke-opacity=".55" stroke-width="28" stroke-linecap="round"/>
+      <path d="M185 612c244-45 467-43 669 6 151 36 290 42 418 16" stroke="#FFF8DA" stroke-opacity=".42" stroke-width="34" stroke-linecap="round"/>
+      <path d="M233 871c172 33 347 31 525-5 181-37 354-37 519 0" stroke="#F6E1B6" stroke-opacity=".38" stroke-width="31" stroke-linecap="round"/>
+      <ellipse cx="934" cy="875" rx="144" ry="86" fill="#A64231" opacity=".86"/>
+      <ellipse cx="910" cy="855" rx="86" ry="48" fill="#D46A42" opacity=".9"/>
+      <ellipse cx="884" cy="840" rx="34" ry="18" fill="#F2C181" opacity=".65"/>
+    </g>
+    <circle cx="750" cy="750" r="625" fill="url(#shade)"/>
+  </g>
+</svg>

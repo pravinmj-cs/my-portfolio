@@ -1,0 +1,43 @@
+<svg width="1400" height="1400" viewBox="0 0 1400 1400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softNoise" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".011 .026" numOctaves="5" seed="11"/>
+      <feColorMatrix type="saturate" values=".6"/>
+      <feBlend mode="screen" in2="SourceGraphic"/>
+    </filter>
+    <radialGradient id="ocean" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(430 315) rotate(45) scale(900)">
+      <stop stop-color="#D8FFFF"/>
+      <stop offset=".18" stop-color="#2ED2FF"/>
+      <stop offset=".46" stop-color="#126AD7"/>
+      <stop offset=".74" stop-color="#08245F"/>
+      <stop offset="1" stop-color="#01030B"/>
+    </radialGradient>
+    <radialGradient id="shade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(390 320) rotate(43) scale(850)">
+      <stop offset=".14" stop-color="white" stop-opacity=".82"/>
+      <stop offset=".38" stop-color="white" stop-opacity=".08"/>
+      <stop offset=".69" stop-color="#030714" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#01030A" stop-opacity=".94"/>
+    </radialGradient>
+    <clipPath id="disc"><circle cx="700" cy="700" r="580"/></clipPath>
+    <filter id="glow" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="34" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="700" cy="700" r="590" fill="#37D7FF" opacity=".22" filter="url(#glow)"/>
+  <g clip-path="url(#disc)">
+    <circle cx="700" cy="700" r="580" fill="url(#ocean)"/>
+    <g filter="url(#softNoise)" opacity=".98">
+      <path d="M265 390c104-85 210-121 323-101 63 11 71 55 38 92-42 47-137 29-186 78-38 38-80 49-145 20-43-19-61-52-30-89Z" fill="#63D08B"/>
+      <path d="M538 554c82-64 171-66 258-21 70 36 100 99 67 151-37 58-138 32-206 65-75 36-158 26-196-31-39-59 1-119 77-164Z" fill="#2FB375"/>
+      <path d="M365 784c90-23 173-1 230 59 33 35 24 85-19 106-89 42-213 18-272-56-38-48-10-91 61-109Z" fill="#A7E6C2"/>
+      <path d="M736 330c127 16 234 72 296 155 47 63 32 118-29 125-85 10-144-78-239-82-78-3-134-51-143-109-9-57 33-100 115-89Z" fill="#F3FAFF" opacity=".8"/>
+      <path d="M805 840c120-14 217 15 284 86 45 48 39 113-14 138-81 37-217-14-297-95-58-58-44-121 27-129Z" fill="#E9F7FF" opacity=".72"/>
+      <path d="M400 638c112-30 222-17 330 39" stroke="#F7FFFF" stroke-opacity=".55" stroke-width="36" stroke-linecap="round"/>
+      <path d="M697 451c128 9 245 45 351 108" stroke="#FFFFFF" stroke-opacity=".32" stroke-width="28" stroke-linecap="round"/>
+      <path d="M267 925c136 11 283 44 438 100" stroke="#FFFFFF" stroke-opacity=".34" stroke-width="34" stroke-linecap="round"/>
+    </g>
+    <circle cx="700" cy="700" r="580" fill="url(#shade)"/>
+    <path d="M178 653c69-209 195-367 378-474" stroke="white" stroke-opacity=".22" stroke-width="24" stroke-linecap="round"/>
+  </g>
+</svg>

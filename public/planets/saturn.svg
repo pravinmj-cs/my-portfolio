@@ -1,0 +1,53 @@
+<svg width="1900" height="1150" viewBox="0 0 1900 1150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="blurGlow" x="-45%" y="-45%" width="190%" height="190%"><feGaussianBlur stdDeviation="34"/></filter>
+    <filter id="ringNoise" x="-20%" y="-80%" width="140%" height="260%">
+      <feTurbulence type="fractalNoise" baseFrequency=".016 .11" numOctaves="4" seed="64"/>
+      <feColorMatrix type="saturate" values=".18"/>
+      <feBlend mode="multiply" in2="SourceGraphic"/>
+    </filter>
+    <radialGradient id="saturnBase" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(795 328) rotate(50) scale(520)">
+      <stop stop-color="#FFF0BC"/>
+      <stop offset=".25" stop-color="#D9AA70"/>
+      <stop offset=".58" stop-color="#6E564C"/>
+      <stop offset=".86" stop-color="#15100E"/>
+      <stop offset="1" stop-color="#050302"/>
+    </radialGradient>
+    <radialGradient id="saturnShade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(762 318) rotate(40) scale(550)">
+      <stop offset=".11" stop-color="white" stop-opacity=".5"/>
+      <stop offset=".37" stop-color="white" stop-opacity=".05"/>
+      <stop offset=".7" stop-color="#020102" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#010101" stop-opacity=".94"/>
+    </radialGradient>
+    <clipPath id="planetDisc"><circle cx="835" cy="465" r="330"/></clipPath>
+    <clipPath id="frontRing"><rect x="0" y="452" width="1900" height="698"/></clipPath>
+    <clipPath id="backRing"><rect x="0" y="0" width="1900" height="452"/></clipPath>
+  </defs>
+  <ellipse cx="878" cy="555" rx="750" ry="198" transform="rotate(-10 878 555)" fill="#D6C1A0" opacity=".18" filter="url(#blurGlow)"/>
+  <g clip-path="url(#backRing)">
+    <g filter="url(#ringNoise)" opacity=".78">
+      <ellipse cx="878" cy="555" rx="755" ry="196" transform="rotate(-10 878 555)" stroke="#E8D8BC" stroke-width="42"/>
+      <ellipse cx="878" cy="555" rx="664" ry="172" transform="rotate(-10 878 555)" stroke="#806D5F" stroke-width="26"/>
+      <ellipse cx="878" cy="555" rx="594" ry="150" transform="rotate(-10 878 555)" stroke="#D5C3A6" stroke-width="20"/>
+      <ellipse cx="878" cy="555" rx="516" ry="128" transform="rotate(-10 878 555)" stroke="#312723" stroke-width="20"/>
+      <ellipse cx="878" cy="555" rx="462" ry="111" transform="rotate(-10 878 555)" stroke="#F3E5C8" stroke-width="16"/>
+    </g>
+  </g>
+  <g clip-path="url(#planetDisc)">
+    <circle cx="835" cy="465" r="330" fill="url(#saturnBase)"/>
+    <rect x="496" y="285" width="690" height="34" fill="#FFEAB8" opacity=".16"/>
+    <rect x="496" y="372" width="690" height="30" fill="#8E6C58" opacity=".2"/>
+    <rect x="496" y="512" width="690" height="42" fill="#ECD29A" opacity=".14"/>
+    <circle cx="835" cy="465" r="330" fill="url(#saturnShade)"/>
+    <path d="M530 453c150 52 345 72 600 23" stroke="#040202" stroke-opacity=".3" stroke-width="45" stroke-linecap="round"/>
+  </g>
+  <g clip-path="url(#frontRing)">
+    <g filter="url(#ringNoise)">
+      <ellipse cx="878" cy="555" rx="755" ry="196" transform="rotate(-10 878 555)" stroke="#E8D8BC" stroke-width="42"/>
+      <ellipse cx="878" cy="555" rx="664" ry="172" transform="rotate(-10 878 555)" stroke="#806D5F" stroke-width="26"/>
+      <ellipse cx="878" cy="555" rx="594" ry="150" transform="rotate(-10 878 555)" stroke="#D5C3A6" stroke-width="20"/>
+      <ellipse cx="878" cy="555" rx="516" ry="128" transform="rotate(-10 878 555)" stroke="#312723" stroke-width="20"/>
+      <ellipse cx="878" cy="555" rx="462" ry="111" transform="rotate(-10 878 555)" stroke="#F3E5C8" stroke-width="16"/>
+    </g>
+  </g>
+</svg>
