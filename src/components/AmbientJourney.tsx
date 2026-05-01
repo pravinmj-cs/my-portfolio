@@ -97,14 +97,15 @@ const brightStars = [
   { id: 11, left: "44%", top: "50%", size: 2.6, delay: "5.1s",  dur: "7.5s", col: "star-blue"   },
 ];
 
-// Shooting stars — all travel top-left → bottom-right at 42°
-// Staggered delays so they never cluster. Long dur = rare but dramatic when they appear.
+// Shooting stars — negative top = starts above viewport, enters naturally from top edge.
+// The fade-in at 3% keyframe happens while the star is off-screen so there's no pop.
+// As it travels rotate(42deg) translateX(38vw) it descends into view and fades out.
 const shootingStars = [
-  { id: 1, top: "3%",  left: "5%",  delay: "2.0s",  dur: "20s", big: false },
-  { id: 2, top: "6%",  left: "28%", delay: "13.0s", dur: "25s", big: false },
-  { id: 3, top: "2%",  left: "52%", delay: "22.5s", dur: "30s", big: true  },
-  { id: 4, top: "8%",  left: "15%", delay: "7.0s",  dur: "28s", big: false },
-  { id: 5, top: "4%",  left: "40%", delay: "17.5s", dur: "22s", big: false },
+  { id: 1, top: "-18%", left: "5%",  delay: "2.0s",  dur: "20s", big: false },
+  { id: 2, top: "-15%", left: "30%", delay: "13.0s", dur: "25s", big: false },
+  { id: 3, top: "-20%", left: "54%", delay: "22.5s", dur: "30s", big: true  },
+  { id: 4, top: "-16%", left: "16%", delay: "7.0s",  dur: "28s", big: false },
+  { id: 5, top: "-14%", left: "42%", delay: "17.5s", dur: "22s", big: false },
 ];
 
 // ─── Centered planet anchor ───────────────────────────────────────────────────
@@ -123,9 +124,9 @@ function PlanetAnchor({
         style={{
           x, y, scale, opacity,
           ...(rotate !== undefined ? { rotate } : {}),
-          // Pull the element back so its own center aligns with the anchor
           translateX: "-50%",
           translateY: "-50%",
+          willChange: "transform, opacity",
         }}
       >
         {children}
@@ -137,7 +138,11 @@ function PlanetAnchor({
 // ─── Main component ───────────────────────────────────────────────────────────
 export function AmbientJourney() {
   const { scrollYProgress } = useScroll();
-  const s = useSpring(scrollYProgress, { stiffness: 95, damping: 28, mass: 0.28 });
+  // Gentle overdamped spring — smooths frame gaps without bounce or lag.
+  // stiffness:60 + damping:20 + mass:0.8 = critically damped, no oscillation.
+  // Other bottlenecks (blur filters, excess GPU layers) are already removed
+  // so the spring computation has headroom to run without causing stutter.
+  const s = useSpring(scrollYProgress, { stiffness: 60, damping: 20, mass: 0.8 });
 
   // ── Ambience ────────────────────────────────────────────────────────────────
   const nebulaScale   = useTransform(s, [0, 1], [0.9, 1.38]);
@@ -161,7 +166,7 @@ export function AmbientJourney() {
   const rocketX     = useTransform(s, [0, 1], ["3vw",  "84vw"]);
   const rocketY     = useTransform(s, [0, 1], ["80vh", "6vh"]);
   const rocketRot   = useTransform(s, [0, 1], [48, 52]); // nose points upper-right, slight drift
-  const rocketOp    = useTransform(s, [0, 0.06, 0.45, 0.88, 1], [0, 0.62, 0.72, 0.52, 0]);
+  const rocketOp    = useTransform(s, [0, 0.04, 0.40, 0.90, 1], [0, 0.95, 1.0, 0.80, 0]);
 
   // ══════════════════════════════════════════════════════════════════════════════
   // PLANET TRANSFORMS
@@ -171,33 +176,35 @@ export function AmbientJourney() {
   // At closest approach the planet is LARGER than the viewport.
   // ══════════════════════════════════════════════════════════════════════════════
 
-  // ── Earth: you are launching from home ──────────────────────────────────────
-  // Starts close (large), shrinks as you depart, drifts slightly upper-right
-  // Opacity hits exactly 1.0 at peak — planet is fully opaque, no stars bleed through.
-  // Fast fade-in at approach, fast fade-out at departure.
-  const earthOp = useTransform(s, [0, 0.05, 0.10, 0.18, 0.23, 0.25], [0, 0.55, 1.0, 1.0, 0.55, 0]);
-  const earthSc = useTransform(s, [0, 0.05, 0.17, 0.25], [1.0, 1.15, 0.45, 0.03]);
-  const earthX  = useTransform(s, [0, 0.05, 0.17, 0.25], ["8vw",  "8vw",  "18vw",  "30vw"]);
-  const earthY  = useTransform(s, [0, 0.05, 0.17, 0.25], ["0vh",  "-2vh", "-10vh", "-22vh"]);
+  // ── Section ↔ scroll-progress mapping (approximate, 6 sections) ─────────────
+  // hero: 0–0.10  |  phases: 0.10–0.26  |  happyfox: 0.26–0.52
+  // creativity: 0.52–0.66  |  packgine: 0.66–0.88  |  beyond: 0.88–1.0
+  // ─────────────────────────────────────────────────────────────────────────────
 
-  // ── Mars: first pitstop ──────────────────────────────────────────────────────
-  const marsOp = useTransform(s, [0.19, 0.27, 0.31, 0.38, 0.43, 0.46], [0, 0.55, 1.0, 1.0, 0.55, 0]);
-  const marsSc = useTransform(s, [0.19, 0.33, 0.40, 0.46],        [0.03, 2.2,  0.7,  0.03]);
-  const marsX  = useTransform(s, [0.19, 0.33, 0.40, 0.46],        ["6vw",  "0vw",  "-6vw",  "-18vw"]);
-  const marsY  = useTransform(s, [0.19, 0.33, 0.40, 0.46],        ["4vh",  "0vh",  "10vh",  "26vh"]);
+  // ── Earth: Hero + Resilio Labs (ME → first job, still on Earth) ──────────────
+  const earthOp = useTransform(s, [0, 0.04, 0.08, 0.14, 0.18, 0.21], [0, 0.55, 1.0, 1.0, 0.55, 0]);
+  const earthSc = useTransform(s, [0, 0.04, 0.14, 0.21], [1.0, 1.15, 0.45, 0.03]);
+  const earthX  = useTransform(s, [0, 0.04, 0.14, 0.21], ["8vw",  "8vw",  "18vw",  "30vw"]);
+  const earthY  = useTransform(s, [0, 0.04, 0.14, 0.21], ["0vh",  "-2vh", "-10vh", "-22vh"]);
 
-  // ── Jupiter: second pitstop — orbital pressure ───────────────────────────────
-  const jupOp = useTransform(s, [0.39, 0.48, 0.53, 0.60, 0.64, 0.67], [0, 0.55, 1.0, 1.0, 0.55, 0]);
-  const jupSc = useTransform(s, [0.39, 0.55, 0.62, 0.67],        [0.03, 2.6,  0.8,  0.03]);
-  const jupX  = useTransform(s, [0.39, 0.55, 0.62, 0.67],        ["7vw",  "0vw",  "-7vw",  "-20vw"]);
-  const jupY  = useTransform(s, [0.39, 0.55, 0.62, 0.67],        ["4vh",  "0vh",  "12vh",  "28vh"]);
+  // ── Mars: Niyata — first industry orbit (phases section, second half) ─────────
+  const marsOp = useTransform(s, [0.16, 0.21, 0.24, 0.29, 0.32, 0.35], [0, 0.55, 1.0, 1.0, 0.55, 0]);
+  const marsSc = useTransform(s, [0.16, 0.25, 0.31, 0.35],        [0.03, 2.2,  0.7,  0.03]);
+  const marsX  = useTransform(s, [0.16, 0.25, 0.31, 0.35],        ["6vw",  "0vw",  "-6vw",  "-18vw"]);
+  const marsY  = useTransform(s, [0.16, 0.25, 0.31, 0.35],        ["4vh",  "0vh",  "10vh",  "26vh"]);
 
-  // ── Saturn: destination — you fly INTO it ────────────────────────────────────
-  const satOp = useTransform(s, [0.60, 0.68, 0.74, 0.93, 1.0], [0, 0.55, 1.0, 1.0, 0.72]);
-  const satSc = useTransform(s, [0.60, 0.82, 0.93, 1.0],        [0.03, 2.0,  3.0,  4.0]);
-  const satX  = useTransform(s, [0.60, 0.82, 1.0],              ["6vw",  "2vw",  "0vw"]);
-  const satY  = useTransform(s, [0.60, 0.82, 1.0],              ["4vh",  "0vh",  "-2vh"]);
-  const satRt = useTransform(s, [0.60, 1.0],                    [-14, 8]);
+  // ── Jupiter: HappyFox — orbital pressure, biggest section ────────────────────
+  const jupOp = useTransform(s, [0.30, 0.36, 0.40, 0.48, 0.52, 0.55], [0, 0.55, 1.0, 1.0, 0.55, 0]);
+  const jupSc = useTransform(s, [0.30, 0.42, 0.50, 0.55],        [0.03, 2.6,  0.8,  0.03]);
+  const jupX  = useTransform(s, [0.30, 0.42, 0.50, 0.55],        ["7vw",  "0vw",  "-7vw",  "-20vw"]);
+  const jupY  = useTransform(s, [0.30, 0.42, 0.50, 0.55],        ["4vh",  "0vh",  "12vh",  "28vh"]);
+
+  // ── Saturn: Packgine — deep-space destination, flies INTO it ─────────────────
+  const satOp = useTransform(s, [0.62, 0.68, 0.72, 0.88, 1.0], [0, 0.55, 1.0, 1.0, 0.72]);
+  const satSc = useTransform(s, [0.62, 0.78, 0.90, 1.0],        [0.03, 2.0,  3.0,  4.0]);
+  const satX  = useTransform(s, [0.62, 0.78, 1.0],              ["6vw",  "2vw",  "0vw"]);
+  const satY  = useTransform(s, [0.62, 0.78, 1.0],              ["4vh",  "0vh",  "-2vh"]);
+  const satRt = useTransform(s, [0.62, 1.0],                    [-14, 8]);
 
   return (
     <div className="ambient-stage pointer-events-none fixed inset-0 z-0 overflow-hidden">
@@ -216,7 +223,7 @@ export function AmbientJourney() {
 
       {/* ── Nebula glow — deepens as journey progresses ─────────────────────── */}
       <motion.div
-        className="absolute inset-[-14%] blur-2xl"
+        className="absolute inset-[-14%]"
         style={{
           opacity: nebulaOpacity,
           scale: nebulaScale,
@@ -268,7 +275,7 @@ export function AmbientJourney() {
       </div>
 
       {/* ── Far stars (barely move — they are distant suns) ──────────────────── */}
-      <motion.div style={{ y: farDrift, willChange: "transform" }} className="absolute inset-0">
+      <motion.div style={{ y: farDrift }} className="absolute inset-0">
         {farStars.map(st => (
           <span key={st.id}
             className={`star-dot star-far absolute rounded-full bg-white ${st.col}`}
@@ -278,7 +285,7 @@ export function AmbientJourney() {
       </motion.div>
 
       {/* ── Mid stars ────────────────────────────────────────────────────────── */}
-      <motion.div style={{ y: midDrift, willChange: "transform" }} className="absolute inset-0">
+      <motion.div style={{ y: midDrift }} className="absolute inset-0">
         {midStars.map(st => (
           <span key={st.id}
             className={`star-dot star-mid absolute rounded-full bg-white ${st.col}`}
@@ -288,7 +295,7 @@ export function AmbientJourney() {
       </motion.div>
 
       {/* ── Near stars + meteors (fastest layer) ─────────────────────────────── */}
-      <motion.div style={{ y: nearDrift, willChange: "transform" }} className="absolute inset-0">
+      <motion.div style={{ y: nearDrift }} className="absolute inset-0">
         {nearStars.map(st => (
           <span key={st.id} className={`star-dot star-near absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
@@ -401,136 +408,126 @@ export function AmbientJourney() {
         <div className="planet-glow planet-glow-saturn" />
       </PlanetAnchor>
 
-      {/* ── Spacecraft ───────────────────────────────────────────────────────── */}
+      {/* ── Rocket — ascending bottom → top ──────────────────────────────────── */}
       <motion.div
         className="absolute"
-        style={{ x: rocketX, y: rocketY, rotate: rocketRot, opacity: rocketOp, width: 96, height: 96 }}
+        style={{ x: rocketX, y: rocketY, rotate: rocketRot, opacity: rocketOp, width: 64, height: 180, zIndex: 20 }}
       >
-        {/*
-          Minimal concept spacecraft — needle profile, nose at top.
-          rotate≈50° → nose points upper-right, engine points lower-left.
-        */}
-        <svg viewBox="0 0 96 120" width="96" height="120" style={{ overflow: "visible" }}>
+        <svg viewBox="0 0 64 180" width="64" height="180" style={{ overflow: "visible" }}>
           <defs>
-            {/* Dark stealth hull — carbon fibre look */}
-            <linearGradient id="v-hull" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stopColor="#0d1520" stopOpacity="0.95" />
-              <stop offset="30%"  stopColor="#1c2d42" stopOpacity="1.0"  />
-              <stop offset="50%"  stopColor="#243650" stopOpacity="1.0"  />
-              <stop offset="72%"  stopColor="#182535" stopOpacity="0.98" />
-              <stop offset="100%" stopColor="#0a1218" stopOpacity="0.92" />
+            {/* Hull — light silver with left-lit shading */}
+            <linearGradient id="r-hull" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stopColor="#a8c0d8" stopOpacity="0.92" />
+              <stop offset="28%"  stopColor="#d8eaf8" stopOpacity="1.0"  />
+              <stop offset="52%"  stopColor="#e8f4ff" stopOpacity="1.0"  />
+              <stop offset="76%"  stopColor="#b0c8de" stopOpacity="0.98" />
+              <stop offset="100%" stopColor="#7898b8" stopOpacity="0.90" />
             </linearGradient>
-
-            {/* Edge highlight — cold blue rim light */}
-            <linearGradient id="v-edge" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%"   stopColor="#8ab8e0" stopOpacity="0.90" />
-              <stop offset="40%"  stopColor="#5090c0" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#2060a0" stopOpacity="0.15" />
+            {/* Nosecone accent — warm orange-red */}
+            <linearGradient id="r-nose-cap" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stopColor="#d06828" stopOpacity="0.95" />
+              <stop offset="45%"  stopColor="#f08840" stopOpacity="1.0"  />
+              <stop offset="100%" stopColor="#b05020" stopOpacity="0.90" />
             </linearGradient>
-
-            {/* Wing surface */}
-            <linearGradient id="v-wing" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stopColor="#141e2e" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="#0a121c" stopOpacity="0.80" />
+            {/* Wing — slightly darker steel */}
+            <linearGradient id="r-wing" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stopColor="#8099b5" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#4a6080" stopOpacity="0.88" />
             </linearGradient>
-
-            {/* Nose heat glow — kinetic heating from speed */}
-            <radialGradient id="v-nose" cx="50%" cy="100%" r="60%">
-              <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.70" />
-              <stop offset="35%"  stopColor="#a0d8ff" stopOpacity="0.38" />
-              <stop offset="100%" stopColor="#4090ff" stopOpacity="0"    />
+            {/* Exhaust — bright warm flame: white core → orange → transparent */}
+            <linearGradient id="r-exhaust" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%"   stopColor="#ffffff" stopOpacity="1.00" />
+              <stop offset="8%"   stopColor="#ffe8b0" stopOpacity="0.96" />
+              <stop offset="25%"  stopColor="#ff9e40" stopOpacity="0.78" />
+              <stop offset="50%"  stopColor="#ff6010" stopOpacity="0.42" />
+              <stop offset="80%"  stopColor="#e03000" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="#a02000" stopOpacity="0"    />
+            </linearGradient>
+            {/* Exhaust outer halo — wide soft orange bloom */}
+            <radialGradient id="r-bloom" cx="50%" cy="10%" r="90%">
+              <stop offset="0%"   stopColor="#ffcc60" stopOpacity="0.55" />
+              <stop offset="40%"  stopColor="#ff8020" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#ff4000" stopOpacity="0"    />
             </radialGradient>
-
-            {/* Plasma engine core */}
-            <radialGradient id="v-plasma" cx="50%" cy="25%" r="75%">
+            {/* Engine core glow */}
+            <radialGradient id="r-core" cx="50%" cy="20%" r="80%">
               <stop offset="0%"   stopColor="#ffffff" stopOpacity="1.0"  />
-              <stop offset="22%"  stopColor="#b0f0ff" stopOpacity="0.95" />
-              <stop offset="50%"  stopColor="#40c8ff" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="#0060e0" stopOpacity="0"    />
+              <stop offset="30%"  stopColor="#ffe090" stopOpacity="0.85" />
+              <stop offset="70%"  stopColor="#ff8030" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#ff4000" stopOpacity="0"    />
             </radialGradient>
 
-            {/* Engine exhaust — long focused plume */}
-            <linearGradient id="v-exhaust" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%"   stopColor="#c0f0ff" stopOpacity="0.95" />
-              <stop offset="15%"  stopColor="#60d0ff" stopOpacity="0.75" />
-              <stop offset="45%"  stopColor="#2090e0" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#0050c0" stopOpacity="0"    />
-            </linearGradient>
-
-            <filter id="v-f-plasma" x="-120%" y="-120%" width="340%" height="340%">
-              <feGaussianBlur stdDeviation="5" />
+            <filter id="r-f-bloom" x="-150%" y="-20%" width="400%" height="140%">
+              <feGaussianBlur stdDeviation="6 3" />
             </filter>
-            <filter id="v-f-exhaust" x="-80%" y="0%" width="260%" height="120%">
-              <feGaussianBlur stdDeviation="3 2" />
+            <filter id="r-f-exhaust" x="-60%" y="0%" width="220%" height="110%">
+              <feGaussianBlur stdDeviation="2.5 1.5" />
             </filter>
-            <filter id="v-f-nose" x="-150%" y="-50%" width="400%" height="250%">
+            <filter id="r-f-core" x="-120%" y="-80%" width="340%" height="360%">
               <feGaussianBlur stdDeviation="4" />
             </filter>
-            <filter id="v-f-wing-glow" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="2" />
+            {/* Whole-rocket rim glow — makes it pop off the dark background */}
+            <filter id="r-f-glow" x="-40%" y="-10%" width="180%" height="120%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
           </defs>
 
-          {/* ── Exhaust plume — painted first (behind hull) ── */}
-          <ellipse cx="48" cy="106" rx="5" ry="22"
-            fill="url(#v-exhaust)" filter="url(#v-f-exhaust)" />
-          {/* tight bright core */}
-          <ellipse cx="48" cy="100" rx="2.5" ry="8"
-            fill="#c0f0ff" fillOpacity="0.88" />
+          {/* ── Exhaust bloom (widest, most transparent — painted first) ── */}
+          <ellipse cx="32" cy="138" rx="22" ry="42"
+            fill="url(#r-bloom)" filter="url(#r-f-bloom)" />
 
-          {/* ── Wing glow edge (subtle) ── */}
-          <path d="M 40,62 L 8,86 L 38,72 Z"
-            fill="#1a3050" filter="url(#v-f-wing-glow)" opacity="0.6" />
-          <path d="M 56,62 L 88,86 L 58,72 Z"
-            fill="#1a3050" filter="url(#v-f-wing-glow)" opacity="0.6" />
+          {/* ── Main exhaust plume ── */}
+          <ellipse cx="32" cy="132" rx="8" ry="34"
+            fill="url(#r-exhaust)" filter="url(#r-f-exhaust)" />
 
-          {/* ── Left swept delta wing ── */}
-          <path d="M 40,62 L 6,88 L 38,74 Z" fill="url(#v-wing)" />
-          {/* wing leading edge highlight */}
-          <path d="M 40,62 L 6,88"
-            stroke="#3060a0" strokeWidth="0.8" strokeOpacity="0.55" fill="none" />
+          {/* ── Bright exhaust core ── */}
+          <ellipse cx="32" cy="120" rx="3.5" ry="12"
+            fill="#fff8e8" fillOpacity="0.95" />
 
-          {/* ── Right swept delta wing ── */}
-          <path d="M 56,62 L 90,88 L 58,74 Z" fill="url(#v-wing)" />
-          <path d="M 56,62 L 90,88"
-            stroke="#3060a0" strokeWidth="0.8" strokeOpacity="0.55" fill="none" />
+          {/* ── Wings (delta swept) — painted behind fuselage ── */}
+          <path d="M 26,90 L 2,118 L 25,102 Z" fill="url(#r-wing)" />
+          <path d="M 26,90 L 2,118"
+            stroke="#9ab8d0" strokeWidth="0.8" strokeOpacity="0.65" fill="none" />
+          <path d="M 38,90 L 62,118 L 39,102 Z" fill="url(#r-wing)" />
+          <path d="M 38,90 L 62,118"
+            stroke="#9ab8d0" strokeWidth="0.8" strokeOpacity="0.65" fill="none" />
 
-          {/* ── Main needle fuselage ── */}
-          <path d="
-            M 48,4
-            C 52,4  56,14  56,34
-            C 56,52  54,66  52,78
-            L 48,84
-            L 44,78
-            C 42,66  40,52  40,34
-            C 40,14  44,4   48,4 Z
-          " fill="url(#v-hull)" />
+          {/* ── Fuselage body (with rim glow filter) ── */}
+          <g filter="url(#r-f-glow)">
+            {/* Nosecone cap — orange accent */}
+            <path d="M 32,4 C 36,4 39,10 39,24 L 32,26 L 25,24 C 25,10 28,4 32,4 Z"
+              fill="url(#r-nose-cap)" />
 
-          {/* ── Left hull edge highlight ── */}
-          <path d="M 48,5 C 42,5 40,14 40,34 C 40,52 42,66 44,78"
-            stroke="url(#v-edge)" strokeWidth="0.9" fill="none" strokeOpacity="0.7" />
+            {/* Main hull cylinder */}
+            <path d="
+              M 25,24
+              L 25,108 L 32,114 L 39,108
+              L 39,24 Z
+            " fill="url(#r-hull)" />
 
-          {/* ── Small canard fins near nose ── */}
-          <path d="M 43,32 L 28,38 L 40,36 Z" fill="#1c2c40" fillOpacity="0.90" />
-          <path d="M 53,32 L 68,38 L 56,36 Z" fill="#1c2c40" fillOpacity="0.90" />
-          {/* canard edge lines */}
-          <path d="M 43,32 L 28,38" stroke="#4080b0" strokeWidth="0.6" strokeOpacity="0.50" fill="none" />
-          <path d="M 53,32 L 68,38" stroke="#4080b0" strokeWidth="0.6" strokeOpacity="0.50" fill="none" />
+            {/* Left rim highlight */}
+            <line x1="25" y1="24" x2="25" y2="108"
+              stroke="#c8e4f8" strokeWidth="0.8" strokeOpacity="0.70" />
+            {/* Right shadow edge */}
+            <line x1="39" y1="24" x2="39" y2="108"
+              stroke="#5878a0" strokeWidth="0.6" strokeOpacity="0.55" />
 
-          {/* ── Nose heat glow (blurred) ── */}
-          <ellipse cx="48" cy="8" rx="10" ry="6"
-            fill="url(#v-nose)" filter="url(#v-f-nose)" />
+            {/* Hull band — mid-body stripe */}
+            <rect x="25" y="64" width="14" height="3.5" fill="#c84020" fillOpacity="0.82" rx="0.5" />
 
-          {/* ── Engine bell ── */}
-          <ellipse cx="48" cy="82" rx="7" ry="4" fill="#0a1520" />
-          <ellipse cx="48" cy="82" rx="5" ry="2.8" fill="#060e18" />
+            {/* Canard fins — small, near top */}
+            <path d="M 26,44 L 14,52 L 25,49 Z" fill="#8099b5" fillOpacity="0.92" />
+            <path d="M 38,44 L 50,52 L 39,49 Z" fill="#8099b5" fillOpacity="0.92" />
 
-          {/* ── Plasma engine glow (large blurred halo) ── */}
-          <ellipse cx="48" cy="85" rx="14" ry="9"
-            fill="url(#v-plasma)" filter="url(#v-f-plasma)" />
-          {/* tight inner plasma */}
-          <ellipse cx="48" cy="83" rx="5" ry="3.5"
-            fill="url(#v-plasma)" opacity="0.95" />
+            {/* Engine bell */}
+            <path d="M 26,108 L 23,116 L 41,116 L 38,108 Z" fill="#6888a8" fillOpacity="0.92" />
+            <ellipse cx="32" cy="116" rx="9" ry="3" fill="#3a5070" fillOpacity="0.90" />
+          </g>
+
+          {/* ── Engine core glow (over bell) ── */}
+          <ellipse cx="32" cy="118" rx="11" ry="7"
+            fill="url(#r-core)" filter="url(#r-f-core)" />
         </svg>
       </motion.div>
 

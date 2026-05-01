@@ -5,11 +5,12 @@ type SectionProps = {
   eyebrow: string;
   title: string;
   copy?: string;
+  leftSlot?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 };
 
-export function Section({ id, eyebrow, title, copy, children, className }: SectionProps) {
+export function Section({ id, eyebrow, title, copy, leftSlot, children, className }: SectionProps) {
   return (
     <section id={id} className={cn("section-shell relative z-10", className)}>
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
@@ -21,6 +22,7 @@ export function Section({ id, eyebrow, title, copy, children, className }: Secti
             {title}
           </h2>
           {copy ? <p className="mt-6 max-w-xl text-base leading-7 text-starlight/74">{copy}</p> : null}
+          {leftSlot}
         </div>
         <div>{children}</div>
       </div>

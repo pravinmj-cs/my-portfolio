@@ -9,7 +9,9 @@ import {
   creativeWorks,
   happyFoxMetrics,
   happyFoxMilestones,
-  journeyPhases,
+  niyataData,
+  niyataMetrics,
+  resilioData,
   navItems,
   packgineCapabilities,
   packgineMetrics,
@@ -320,64 +322,124 @@ function MetricCard({ value, label, icon: Icon }: (typeof happyFoxMetrics)[numbe
   );
 }
 
-function JourneyPhases() {
+// ─── Resilio Labs ──────────────────────────────────────────────────────────────
+function Resilio() {
+  const d = resilioData;
   return (
     <Section
-      id="phases"
-      eyebrow="Early Trajectory"
-      title="Before HappyFox — the launch sequence."
-      copy="Each phase didn't just add experience. It changed how I think about systems. Resilio Labs set the standard. Niyata put it under pressure: 7 sprints, 1844 CI jobs, 16 monitored servers, and a first promotion."
+      id="resilio"
+      eyebrow={d.eyebrow}
+      title={d.title}
+      copy={d.copy}
+      className="!min-h-0"
     >
-      <div className="relative">
-        <div className="absolute bottom-0 left-5 top-4 hidden w-px bg-gradient-to-b from-cyan-400 via-reef to-kelp/40 md:block" />
-        <div className="grid gap-5">
-          {journeyPhases.map((phase, index) => (
-            <motion.article
-              key={phase.name}
-              initial={{ opacity: 0, y: 24 }}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.55 }}
+        className="glass relative overflow-hidden rounded-3xl p-5 md:p-7"
+      >
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-75", d.accent)} />
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/8 blur-3xl" />
+        <div className="relative">
+          {/* Role badge */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-reef">
+              <d.icon size={12} />
+              Phase 1
+            </span>
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-starlight/50">
+              {d.role}
+            </span>
+          </div>
+          {/* Subphase cards */}
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {d.subphases.map((sub, i) => (
+              <motion.div
+                key={sub.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.10 }}
+                className="rounded-2xl border border-white/10 bg-abyss/30 p-4 backdrop-blur"
+              >
+                <p className="font-display text-base font-semibold text-white">{sub.title}</p>
+                <p className="mt-2 text-sm leading-6 text-starlight/65">{sub.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </Section>
+  );
+}
+
+// ─── Niyata ────────────────────────────────────────────────────────────────────
+function Niyata() {
+  const d = niyataData;
+  return (
+    <Section
+      id="niyata"
+      eyebrow={d.eyebrow}
+      title={d.title}
+      copy={d.copy}
+    >
+      <div className="grid gap-4">
+        {/* Metrics row */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {niyataMetrics.map((m, i) => (
+            <motion.div
+              key={m.label}
+              initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-90px" }}
-              transition={{ duration: 0.55, delay: index * 0.08 }}
-              className="glass relative overflow-hidden rounded-3xl p-5 md:ml-12 md:p-6"
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.45, delay: i * 0.07 }}
+              className="glass rounded-2xl p-4 text-center"
             >
-              <div className={cn("absolute inset-0 bg-gradient-to-br opacity-80", phase.accent)} />
-              <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-              <span className="absolute -left-[3.25rem] top-6 hidden h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-abyss text-reef shadow-glow md:flex">
-                <phase.icon size={18} />
-              </span>
-              <div className="relative">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-reef">
-                    {phase.phase}
-                  </span>
-                  <span className="text-xs font-medium uppercase tracking-[0.22em] text-starlight/52">
-                    {phase.terrain}
-                  </span>
-                </div>
-                <div className="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-                  <div>
-                    <h3 className="font-display text-4xl font-semibold leading-none text-white md:text-5xl">
-                      {phase.name}
-                    </h3>
-                    <p className="mt-3 text-base font-semibold text-sunlit">{phase.role}</p>
-                    <p className="mt-4 text-sm leading-6 text-starlight/70">{phase.body}</p>
-                  </div>
-                  <div className="grid gap-3">
-                    {phase.subphases.map((subphase) => (
-                      <div
-                        key={subphase.title}
-                        className="rounded-2xl border border-white/12 bg-abyss/32 p-4 backdrop-blur"
-                      >
-                        <p className="font-display text-lg font-semibold text-white">{subphase.title}</p>
-                        <p className="mt-2 text-sm leading-6 text-starlight/66">{subphase.body}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.article>
+              <p className="font-display text-2xl font-semibold text-white">{m.value}</p>
+              <p className="mt-1 text-xs text-starlight/60">{m.label}</p>
+            </motion.div>
           ))}
         </div>
+
+        {/* Subphase cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.55, delay: 0.10 }}
+          className="glass relative overflow-hidden rounded-3xl p-5 md:p-7"
+        >
+          <div className={cn("absolute inset-0 bg-gradient-to-br opacity-75", d.accent)} />
+          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-orange-500/8 blur-3xl" />
+          <div className="relative">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-orange-300">
+                <d.icon size={12} />
+                Phase 2
+              </span>
+              <span className="text-xs font-medium uppercase tracking-[0.18em] text-starlight/50">
+                {d.role}
+              </span>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {d.subphases.map((sub, i) => (
+                <motion.div
+                  key={sub.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: i * 0.08 }}
+                  className="rounded-2xl border border-white/10 bg-abyss/30 p-4 backdrop-blur"
+                >
+                  <p className="font-display text-base font-semibold text-white">{sub.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-starlight/65">{sub.body}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </Section>
   );
@@ -385,12 +447,30 @@ function JourneyPhases() {
 
 // ─── HappyFox ─────────────────────────────────────────────────────────────────
 function HappyFox() {
+  const gratitude = (
+    <div className="mt-10 border-t border-white/8 pt-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-starlight/35">
+        With gratitude
+      </p>
+      <p className="mt-3 text-xs leading-6 text-starlight/50">
+        I genuinely had the best — the kind you don&apos;t fully appreciate until
+        you&apos;ve seen the alternative.{" "}
+        <span className="text-starlight/72">Pradeep (CTO)</span> and{" "}
+        <span className="text-starlight/72">Suresh (EM)</span> trusted me with
+        decisions before I had the title to justify them. The fellow dev team and
+        the operations crew made the work feel like something worth doing. The list
+        of names is long. That&apos;s the point.
+      </p>
+    </div>
+  );
+
   return (
     <Section
       id="happyfox"
       eyebrow="Jupiter · Orbital pressure"
       title="HappyFox: where depth became identity."
       copy="The largest planet. The strongest gravity. The biggest transformation. I entered as a Backend Engineer. Two years later: Technical Lead. But the real shift wasn't the title — it was what I became capable of seeing."
+      leftSlot={gratitude}
     >
       <div className="grid gap-4 sm:grid-cols-2">
         {happyFoxMetrics.map((metric) => (
@@ -437,26 +517,6 @@ function HappyFox() {
           </motion.article>
         ))}
       </div>
-
-      {/* Credits */}
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mt-5 rounded-3xl border border-white/10 bg-gradient-to-br from-violet-500/10 via-reef/8 to-transparent p-6"
-      >
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-reef">With gratitude</p>
-        <p className="mt-3 text-lg font-semibold text-white">
-          The best QA team. The best fellow dev team. My own Ops track crew. The best Engineering Manager. And a CTO who mentored me into excellence.
-        </p>
-        <p className="mt-3 text-sm leading-6 text-starlight/68">
-          Special credit to <span className="text-white font-medium">Pradeep (CTO)</span> and{" "}
-          <span className="text-white font-medium">Suresh (Engineering Manager)</span> for trusting me to
-          explore beyond the expected. And to the operations track —{" "}
-          <span className="text-starlight/80">Muthuvel, Sanjeev, Guru, Rajalakshmi, Sai Prakash, Kavya, Mukilan</span>{" "}
-          — the team that made the work feel like something worth doing.
-        </p>
-      </motion.div>
     </Section>
   );
 }
@@ -1544,7 +1604,8 @@ export function CinematicPortfolio() {
       <AmbientJourney />
       <TopNav />
       <Hero />
-      <JourneyPhases />
+      <Resilio />
+      <Niyata />
       <HappyFox />
       <Creativity />
       <Packgine />

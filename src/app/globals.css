@@ -42,7 +42,7 @@ body {
     linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
     var(--glass);
   box-shadow: 0 22px 64px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(4px);
 }
 
 .ambient-stage {
@@ -73,7 +73,6 @@ body {
   animation-name: star-twinkle;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  will-change: opacity, transform;
 }
 
 /* Galaxy dust — static, no twinkle, just density */
@@ -110,7 +109,6 @@ body {
   animation-name: star-bright-pulse;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  will-change: opacity, transform;
   position: relative;
   overflow: visible;
 }
@@ -174,17 +172,6 @@ body {
   will-change: opacity;
 }
 
-.planet-system,
-.saturn-system {
-  transform-origin: center;
-  will-change: transform, opacity;
-  animation: planet-breathe 10s ease-in-out infinite;
-}
-
-.saturn-system {
-  animation: saturn-drift 12s ease-in-out infinite;
-  overflow: visible;
-}
 
 /* Atmospheric glow rings around each planet */
 .planet-glow {
@@ -203,7 +190,7 @@ body {
     rgba(30, 90, 220, 0.10) 62%,
     transparent 72%
   );
-  filter: blur(12px);
+  filter: blur(5px);
 }
 
 .planet-glow-mars {
@@ -214,7 +201,7 @@ body {
     rgba(180, 60, 20, 0.10) 62%,
     transparent 72%
   );
-  filter: blur(14px);
+  filter: blur(5px);
 }
 
 .planet-glow-jupiter {
@@ -225,7 +212,7 @@ body {
     rgba(200, 130, 50, 0.08) 63%,
     transparent 74%
   );
-  filter: blur(16px);
+  filter: blur(6px);
 }
 
 .planet-glow-saturn {
@@ -236,7 +223,7 @@ body {
     rgba(200, 160, 75, 0.08) 63%,
     transparent 74%
   );
-  filter: blur(18px);
+  filter: blur(6px);
 }
 
 /* ── Shooting star — SVG-based, see AmbientJourney.tsx ── */

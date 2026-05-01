@@ -17,65 +17,69 @@ import {
 
 export const navItems = [
   { label: "Origin",     href: "#hero"       },
-  { label: "Phases",     href: "#phases"     },
+  { label: "Resilio",    href: "#resilio"    },
+  { label: "Niyata",     href: "#niyata"     },
   { label: "HappyFox",   href: "#happyfox"   },
   { label: "Creativity", href: "#creativity", glow: true },
   { label: "Packgine",   href: "#packgine"   },
   { label: "Beyond",     href: "#beyond"     },
 ];
 
-// ── Journey phases — Resilio Labs → Niyata (HappyFox/Packgine get own sections)
-export const journeyPhases = [
-  {
-    phase: "Phase 1",
-    name: "Resilio Labs",
-    terrain: "IIT Madras · Launch pad",
-    role: "Project Associate — 6 months",
-    body:
-      "The shift from theory to reality. Working inside an IIT Madras-incubated environment, I touched real systems for the first time — where engineering met expectations, and expectations had consequences.",
-    accent: "from-cyan-400/25 via-teal-400/20 to-white/5",
-    icon: Telescope,
-    subphases: [
-      {
-        title: "BI tool validation",
-        body:
-          "Built and submitted a complete test milestone report — functional and automated testing of a BI tool — that impressed clients and extended the contract. Engineering with real stakes.",
-      },
-      {
-        title: "The first realisation",
-        body:
-          "Operating inside IIT Madras's research environment, briefly pursuing a PhD track before pivoting to industry. This is where I understood: code is not the outcome. Impact is.",
-      },
-    ],
-  },
-  {
-    phase: "Phase 2",
-    name: "Niyata",
-    terrain: "Mars · First industry orbit",
-    role: "Backend Developer → Technical Lead / DevOps",
-    body:
-      "A new environment. Real pressure. No abstraction. This is where I stopped learning systems and started building them — 7 sprints, 324 work items, 8 releases in 5 months. Then a shift: engineer → Technical Lead.",
-    accent: "from-cyan-400/25 via-kelp/20 to-white/5",
-    icon: CloudCog,
-    subphases: [
-      {
-        title: "Backend systems at scale",
-        body:
-          "Kafka pipelines scaling to 1019 IoT sensors, TimescaleDB migration, Redis cache layer. Response times dropped from 4s to 255ms. 1844 CI jobs, 880 CD jobs. Not just delivery — infrastructure for growth.",
-      },
-      {
-        title: "DevOps culture, from scratch",
-        body:
-          "Introduced GitLab CI/CD with automated builds, unit tests, static + security analysis, Docker, Ansible, Terraform, and MLOps. Ran hands-on sessions to onboard multiple teams.",
-      },
-      {
-        title: "Centralised monitoring",
-        body:
-          "Built a monitoring platform collecting and visualising metrics from 16 production servers — Prometheus, Grafana, and Loki. Systems need to be observable to be trustworthy.",
-      },
-    ],
-  },
+// ── Resilio Labs ───────────────────────────────────────────────────────────────
+export const resilioData = {
+  eyebrow: "Earth · Launch pad",
+  title:   "Resilio Labs: where theory became real.",
+  copy:    "The shift from code to consequences. Working inside an IIT Madras-incubated environment, I touched real systems for the first time — where engineering met expectations, and expectations had weight.",
+  role:    "Project Associate — 6 months",
+  accent:  "from-cyan-400/25 via-teal-400/20 to-white/5",
+  icon:    Telescope,
+  subphases: [
+    {
+      title: "BI tool validation",
+      body:
+        "Built and submitted a complete test milestone report — functional and automated testing of a BI tool — that impressed clients and extended the contract. Engineering with real stakes.",
+    },
+    {
+      title: "The first realisation",
+      body:
+        "Operating inside IIT Madras's research environment, briefly pursuing a PhD track before pivoting to industry. This is where I understood: code is not the outcome. Impact is.",
+    },
+  ],
+};
+
+// ── Niyata ────────────────────────────────────────────────────────────────────
+export const niyataMetrics = [
+  { value: "4s → 255ms", label: "API response time"       },
+  { value: "1844",       label: "CI jobs delivered"        },
+  { value: "16",         label: "Production servers monitored" },
+  { value: "8",          label: "Releases in 5 months"    },
 ];
+
+export const niyataData = {
+  eyebrow: "Mars · First industry orbit",
+  title:   "Niyata: where I stopped learning systems and started building them.",
+  copy:    "Real pressure. No abstraction. 7 sprints, 324 work items, 8 releases in 5 months. Then a shift nobody gave me — engineer to Technical Lead. I took it.",
+  role:    "Backend Developer → Technical Lead / DevOps",
+  accent:  "from-orange-400/20 via-red-500/15 to-white/5",
+  icon:    CloudCog,
+  subphases: [
+    {
+      title: "Backend systems at scale",
+      body:
+        "Kafka pipelines scaling to 1019 IoT sensors, TimescaleDB migration, Redis cache layer. Response times dropped from 4s to 255ms. 1844 CI jobs, 880 CD jobs. Not just delivery — infrastructure for growth.",
+    },
+    {
+      title: "DevOps culture, from scratch",
+      body:
+        "Introduced GitLab CI/CD with automated builds, unit tests, static + security analysis, Docker, Ansible, Terraform, and MLOps. Ran hands-on sessions to onboard multiple teams.",
+    },
+    {
+      title: "Centralised monitoring",
+      body:
+        "Built a monitoring platform collecting and visualising metrics from 16 production servers — Prometheus, Grafana, and Loki. Systems need to be observable to be trustworthy.",
+    },
+  ],
+};
 
 export const happyFoxMetrics = [
   { value: "300+",   label: "Overall PRs",          icon: GitPullRequest },
