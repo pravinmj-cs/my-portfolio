@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionTemplate, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionTemplate, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowUpRight, Github, GraduationCap, Heart, Linkedin, Mail, Menu, MoveDown, Paintbrush, Rocket, Sparkles, Telescope, X } from "lucide-react";
 import {
@@ -20,8 +20,57 @@ import { AmbientJourney } from "./AmbientJourney";
 import { Section } from "./Section";
 import { cn } from "@/lib/utils";
 
+// ─── CountUp — animates a numeric string when it enters the viewport ──────────
+function CountUp({ value, className }: { value: string; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [display, setDisplay] = useState(value);
+
+  useEffect(() => {
+    if (!inView) return;
+    // Match leading number: "300+" → [300, "+"], "3 yrs" → [3, " yrs"]
+    const m = value.match(/^(\d+)(.*)/);
+    if (!m) return; // e.g. "4s → 255ms" — just show as-is
+    const target = parseInt(m[1]);
+    const suffix = m[2];
+    const duration = 1100;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      setDisplay(`${Math.round(eased * target)}${suffix}`);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [inView, value]);
+
+  return <span ref={ref} className={className}>{display}</span>;
+}
+
+// ─── WordReveal — Apple-style word-by-word stagger on scroll ─────────────────
+function WordReveal({ text, className }: { text: string; className?: string }) {
+  const words = text.split(" ");
+  return (
+    <span className={className}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.45, delay: i * 0.055, ease: [0.25, 0.1, 0.25, 1] }}
+          className="inline-block"
+          style={{ marginRight: "0.26em" }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
 // ─── Top navigation ───────────────────────────────────────────────────────────
-function NavLink({ item, onClick }: { item: typeof navItems[number]; onClick?: () => void }) {
+function NavLink({ item, active, onClick }: { item: typeof navItems[number]; active?: boolean; onClick?: () => void }) {
   if (item.glow) {
     return (
       <a
@@ -51,7 +100,12 @@ function NavLink({ item, onClick }: { item: typeof navItems[number]; onClick?: (
     <a
       href={item.href}
       onClick={onClick}
-      className="rounded-full px-3 py-2 text-xs font-medium text-starlight/70 transition hover:bg-white/10 hover:text-white"
+      className={cn(
+        "rounded-full px-3 py-2 text-xs font-medium transition",
+        active
+          ? "bg-white/12 text-white"
+          : "text-starlight/70 hover:bg-white/10 hover:text-white"
+      )}
     >
       {item.label}
     </a>
@@ -60,7 +114,24 @@ function NavLink({ item, onClick }: { item: typeof navItems[number]; onClick?: (
 
 function TopNav() {
   const [open, setOpen] = useState(false);
+  const [activeHref, setActiveHref] = useState("#hero");
   const close = () => setOpen(false);
+
+  useEffect(() => {
+    const ids = navItems.map(item => item.href.slice(1));
+    const observers: IntersectionObserver[] = [];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveHref(`#${id}`); },
+        { threshold: 0.25, rootMargin: "-10% 0px -55% 0px" }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach(obs => obs.disconnect());
+  }, []);
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 md:px-8">
@@ -72,7 +143,7 @@ function TopNav() {
 
         {/* Desktop links */}
         <div className="hidden items-center gap-1 md:flex">
-          {navItems.map((item) => <NavLink key={item.href} item={item} />)}
+          {navItems.map((item) => <NavLink key={item.href} item={item} active={activeHref === item.href} />)}
         </div>
 
         {/* Right group: email + hamburger */}
@@ -200,11 +271,12 @@ function Hero() {
   return (
     <section id="hero" className="relative z-10 flex min-h-svh items-center px-5 pb-16 pt-28 md:px-8">
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
-        <motion.div
-          initial={{ y: 18 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-        >
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+          >
           <div
             className="relative inline-flex items-center gap-2 overflow-hidden rounded-full px-4 py-2 text-sm text-starlight/85 backdrop-blur-md"
             style={{
@@ -232,25 +304,52 @@ function Hero() {
             <Telescope size={16} className="relative text-reef" />
             <span className="relative">Building beyond the known orbit</span>
           </div>
-          <h1 className="mt-7 max-w-5xl font-display text-4xl font-semibold leading-[0.92] text-white sm:text-5xl md:text-7xl lg:text-8xl">
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+            className="mt-7 max-w-5xl font-display text-4xl font-semibold leading-[0.92] text-white sm:text-5xl md:text-7xl lg:text-8xl"
+          >
             From Code to Creativity to Systems.
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-starlight/78 sm:text-xl md:text-2xl">
-            Backend Engineer <span className="text-reef">→</span> Technical Lead{" "}
-            <span className="text-reef">→</span> Founding Technical / Product Architect.
-          </p>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-starlight/58 sm:text-base sm:leading-7">
-            I don&apos;t just write code. I turn complexity into systems people can depend on.
-          </p>
-          <div className="orbit-chip mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-xs text-starlight/68 sm:text-sm" style={{ width: "fit-content" }}>
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.48, ease: "easeOut" }}
+          >
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-starlight/78 sm:text-xl md:text-2xl">
+              Backend Engineer <span className="text-reef">→</span> Technical Lead{" "}
+              <span className="text-reef">→</span> Founding Technical / Product Architect.
+            </p>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-starlight/58 sm:text-base sm:leading-7">
+              I don&apos;t just write code. I turn complexity into systems people can depend on.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.64, ease: "easeOut" }}
+            className="orbit-chip mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-xs text-starlight/68 sm:text-sm"
+            style={{ width: "fit-content" }}
+          >
             <GraduationCap size={15} className="text-sunlit shrink-0" />
             <span>M.E. Computer Science · Sai Ram Engineering College</span>
             <span className="text-white/30 hidden xs:inline">·</span>
             <span className="hidden xs:inline">IIT Madras origin</span>
             <span className="text-white/30">·</span>
             <span className="text-reef">7+ years in orbit</span>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.78, ease: "easeOut" }}
+            className="mt-6 flex flex-wrap gap-3"
+          >
             <a
               href="#packgine"
               className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-abyss transition hover:scale-[1.02]"
@@ -269,8 +368,8 @@ function Hero() {
             >
               <Linkedin size={16} /> LinkedIn
             </a>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         <motion.div
           initial={{ scale: 0.97 }}
@@ -316,7 +415,7 @@ function MetricCard({ value, label, icon: Icon }: (typeof happyFoxMetrics)[numbe
   return (
     <div className="glass rounded-2xl p-5">
       <Icon className="text-reef" size={22} />
-      <p className="mt-5 font-display text-4xl font-semibold text-white">{value}</p>
+      <CountUp value={value} className="mt-5 font-display text-4xl font-semibold text-white" />
       <p className="mt-1 text-sm text-starlight/65">{label}</p>
     </div>
   );
@@ -397,7 +496,7 @@ function Niyata() {
               transition={{ duration: 0.45, delay: i * 0.07 }}
               className="glass rounded-2xl p-4 text-center"
             >
-              <p className="font-display text-2xl font-semibold text-white">{m.value}</p>
+              <CountUp value={m.value} className="font-display text-2xl font-semibold text-white" />
               <p className="mt-1 text-xs text-starlight/60">{m.label}</p>
             </motion.div>
           ))}
@@ -1394,10 +1493,11 @@ function Creativity() {
                   onHoverStart={() => setHoveredId(work.id)}
                   onHoverEnd={() => setHoveredId(null)}
                   animate={{
-                    scale:   isHovered ? (isMobile ? 1.06 : 1.30) : isDimmed ? 0.94 : 1,
-                    opacity: isDimmed ? 0.40 : 1,
+                    scale:   isHovered ? 1.04 : isDimmed ? 0.97 : 1,
+                    y:       isHovered ? -6 : 0,
+                    opacity: isDimmed ? 0.45 : 1,
                   }}
-                  transition={{ type: "spring", stiffness: 340, damping: 28 }}
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   style={{
                     overflow: "visible",
                     position: "relative",
@@ -1414,7 +1514,7 @@ function Creativity() {
                         ? "1px solid rgba(255,255,255,0.14)"
                         : "1px solid rgba(255,255,255,0.06)",
                       boxShadow: isHovered
-                        ? "0 0 22px 4px rgba(0,209,255,0.32), 0 0 55px 12px rgba(139,92,246,0.18)"
+                        ? "0 20px 48px rgba(0,0,0,0.55), 0 0 18px 2px rgba(0,209,255,0.22), 0 0 40px 8px rgba(139,92,246,0.12)"
                         : "none",
                       transform: "translateZ(0)",
                       isolation: "isolate",
@@ -1509,7 +1609,7 @@ function Packgine() {
       <div className="grid gap-4 sm:grid-cols-3">
         {packgineMetrics.map((metric) => (
           <div key={metric.label} className="glass rounded-2xl p-5">
-            <p className="font-display text-4xl font-semibold text-white">{metric.value}</p>
+            <CountUp value={metric.value} className="font-display text-4xl font-semibold text-white" />
             <p className="mt-2 text-sm text-starlight/68">{metric.label}</p>
           </div>
         ))}

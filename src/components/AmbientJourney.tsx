@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { useEffect, useState } from "react";
 import { EarthPlanet, JupiterPlanet, MarsPlanet, SaturnPlanet } from "./CSSPlanets";
 
 // ─── Deterministic star data (LCG — no hydration mismatch) ───────────────────
@@ -137,6 +138,19 @@ function PlanetAnchor({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function AmbientJourney() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const skipHeavy = isMobile || reducedMotion;
+
   const { scrollYProgress } = useScroll();
   // Gentle overdamped spring — smooths frame gaps without bounce or lag.
   // stiffness:60 + damping:20 + mass:0.8 = critically damped, no oscillation.
@@ -202,6 +216,38 @@ export function AmbientJourney() {
   const satX  = useTransform(s, [0.62, 0.78, 1.0],              ["6vw",  "2vw",  "0vw"]);
   const satY  = useTransform(s, [0.62, 0.78, 1.0],              ["4vh",  "0vh",  "-2vh"]);
   const satRt = useTransform(s, [0.62, 1.0],                    [-14, 8]);
+
+  // ── Mobile / reduced-motion: lightweight static background ──────────────────
+  // All hooks are called above — safe to return early here (no hook-order issue).
+  if (skipHeavy) {
+    return (
+      <div className="ambient-stage pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        {/* Deep space gradient */}
+        <div className="absolute inset-0" style={{
+          background:
+            "radial-gradient(ellipse at 15% 10%, rgba(248,225,108,.08) 0%, transparent 22%)," +
+            "radial-gradient(ellipse at 80% 18%, rgba(0,209,255,.08)   0%, transparent 26%)," +
+            "radial-gradient(ellipse at 68% 72%, rgba(139,92,246,.10)  0%, transparent 36%)," +
+            "linear-gradient(180deg,#02030c 0%,#04051a 40%,#030412 70%,#010108 100%)",
+        }} />
+        {/* 60 static stars — zero animations, zero JS overhead */}
+        {farStars.slice(0, 35).map(st => (
+          <span key={st.id} className={`absolute rounded-full bg-white ${st.col}`}
+            style={{ left: st.left, top: st.top, width: st.size, height: st.size, opacity: 0.28 }} />
+        ))}
+        {midStars.slice(0, 20).map(st => (
+          <span key={st.id} className={`absolute rounded-full bg-white ${st.col}`}
+            style={{ left: st.left, top: st.top, width: st.size, height: st.size, opacity: 0.42 }} />
+        ))}
+        {nearStars.slice(0, 10).map(st => (
+          <span key={st.id} className={`absolute rounded-full bg-white ${st.col}`}
+            style={{ left: st.left, top: st.top, width: st.size, height: st.size, opacity: 0.60 }} />
+        ))}
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_44%,transparent_28%,rgba(3,7,18,.50)_65%,rgba(3,7,18,.88)_100%)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="ambient-stage pointer-events-none fixed inset-0 z-0 overflow-hidden">
@@ -375,38 +421,39 @@ export function AmbientJourney() {
       </div>
 
       {/* ── Warp radial flash ─────────────────────────────────────────────────── */}
-      <motion.div style={{ opacity: warpOpacity }} className="absolute inset-0 warp-layer" />
+      {!skipHeavy && <motion.div style={{ opacity: warpOpacity }} className="absolute inset-0 warp-layer" />}
 
       {/* ══════════════════════════════════════════════════════════════════════════
-          PLANETS — all centered, scale = depth (z-axis approach)
+          PLANETS — desktop only (mobile skips for perf + reduced motion)
           ══════════════════════════════════════════════════════════════════════════ */}
+      {!skipHeavy && <>
+        <PlanetAnchor x={earthX} y={earthY} scale={earthSc} opacity={earthOp}
+          className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
+          <EarthPlanet />
+          <div className="planet-glow planet-glow-earth" />
+        </PlanetAnchor>
 
-      <PlanetAnchor x={earthX} y={earthY} scale={earthSc} opacity={earthOp}
-        className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
-        <EarthPlanet />
-        <div className="planet-glow planet-glow-earth" />
-      </PlanetAnchor>
+        <PlanetAnchor x={marsX} y={marsY} scale={marsSc} opacity={marsOp}
+          className="h-[22rem] w-[22rem] md:h-[40rem] md:w-[40rem]">
+          <MarsPlanet />
+          <div className="planet-glow planet-glow-mars" />
+        </PlanetAnchor>
 
-      <PlanetAnchor x={marsX} y={marsY} scale={marsSc} opacity={marsOp}
-        className="h-[22rem] w-[22rem] md:h-[40rem] md:w-[40rem]">
-        <MarsPlanet />
-        <div className="planet-glow planet-glow-mars" />
-      </PlanetAnchor>
+        <PlanetAnchor x={jupX} y={jupY} scale={jupSc} opacity={jupOp}
+          className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
+          <JupiterPlanet />
+          <div className="planet-glow planet-glow-jupiter" />
+        </PlanetAnchor>
 
-      <PlanetAnchor x={jupX} y={jupY} scale={jupSc} opacity={jupOp}
-        className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
-        <JupiterPlanet />
-        <div className="planet-glow planet-glow-jupiter" />
-      </PlanetAnchor>
+        <PlanetAnchor x={satX} y={satY} scale={satSc} opacity={satOp} rotate={satRt}
+          className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
+          <SaturnPlanet />
+          <div className="planet-glow planet-glow-saturn" />
+        </PlanetAnchor>
+      </>}
 
-      <PlanetAnchor x={satX} y={satY} scale={satSc} opacity={satOp} rotate={satRt}
-        className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
-        <SaturnPlanet />
-        <div className="planet-glow planet-glow-saturn" />
-      </PlanetAnchor>
-
-      {/* ── Rocket — ascending bottom → top ──────────────────────────────────── */}
-      <motion.div
+      {/* ── Rocket — desktop only ────────────────────────────────────────────── */}
+      {!skipHeavy && <motion.div
         className="absolute"
         style={{ x: rocketX, y: rocketY, rotate: rocketRot, opacity: rocketOp, width: 64, height: 180, zIndex: 20 }}
       >
@@ -540,7 +587,7 @@ export function AmbientJourney() {
           <ellipse cx="32" cy="118" rx="11" ry="7"
             fill="url(#r-core)" filter="url(#r-f-core)" />
         </svg>
-      </motion.div>
+      </motion.div>}
 
       {/* ── Vignette ──────────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_44%,transparent_28%,rgba(3,7,18,.50)_65%,rgba(3,7,18,.88)_100%)]" />

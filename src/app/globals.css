@@ -58,12 +58,7 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 60;
-  opacity: 0.045;
-  background-image:
-    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: radial-gradient(circle at center, black, transparent 78%);
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(3,7,18,0.18) 100%);
 }
 
 /* ── Comet progress — SVG-based in CinematicPortfolio.tsx, no CSS rules needed ── */
@@ -178,7 +173,7 @@ body {
 /* Atmospheric glow rings around each planet */
 .planet-glow {
   position: absolute;
-  inset: -18%;
+  inset: -8%;
   border-radius: 50%;
   pointer-events: none;
   animation: planet-breathe 10s ease-in-out infinite;
@@ -187,45 +182,45 @@ body {
 .planet-glow-earth {
   background: radial-gradient(
     circle at center,
-    transparent 46%,
-    rgba(60, 140, 255, 0.18) 54%,
-    rgba(30, 90, 220, 0.10) 62%,
-    transparent 72%
+    transparent 48%,
+    rgba(60, 140, 255, 0.10) 56%,
+    rgba(30, 90, 220, 0.05) 64%,
+    transparent 70%
   );
-  filter: blur(5px);
+  filter: blur(4px);
 }
 
 .planet-glow-mars {
   background: radial-gradient(
     circle at center,
-    transparent 44%,
-    rgba(210, 80, 35, 0.20) 52%,
-    rgba(180, 60, 20, 0.10) 62%,
-    transparent 72%
+    transparent 46%,
+    rgba(210, 80, 35, 0.11) 54%,
+    rgba(180, 60, 20, 0.05) 63%,
+    transparent 70%
   );
-  filter: blur(5px);
+  filter: blur(4px);
 }
 
 .planet-glow-jupiter {
   background: radial-gradient(
     circle at center,
-    transparent 44%,
-    rgba(220, 155, 65, 0.18) 52%,
-    rgba(200, 130, 50, 0.08) 63%,
-    transparent 74%
+    transparent 46%,
+    rgba(220, 155, 65, 0.10) 54%,
+    rgba(200, 130, 50, 0.04) 64%,
+    transparent 70%
   );
-  filter: blur(6px);
+  filter: blur(4px);
 }
 
 .planet-glow-saturn {
   background: radial-gradient(
     circle at center,
-    transparent 44%,
-    rgba(220, 185, 95, 0.16) 52%,
-    rgba(200, 160, 75, 0.08) 63%,
-    transparent 74%
+    transparent 46%,
+    rgba(220, 185, 95, 0.09) 54%,
+    rgba(200, 160, 75, 0.04) 64%,
+    transparent 70%
   );
-  filter: blur(6px);
+  filter: blur(4px);
 }
 
 /* ── Shooting star — SVG-based, see AmbientJourney.tsx ── */
@@ -383,4 +378,12 @@ body {
   .shooting-star {
     animation: none;
   }
+}
+
+/* Mobile — kill star twinkle + shooting stars to save battery/CPU */
+@media (max-width: 767px) {
+  .star-dot     { animation: none !important; }
+  .shooting-star { display: none !important; }
+  .star-bright  { animation: none !important; }
+  .warp-layer   { display: none !important; }
 }
