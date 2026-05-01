@@ -25,7 +25,7 @@ function starColor(r: number): string {
 }
 
 // Galaxy dust — dense, static, no twinkle — pure depth layer
-const galaxyStars = Array.from({ length: 520 }, (_, i) => {
+const galaxyStars = Array.from({ length: 180 }, (_, i) => {
   const r = lcg(i * 3 + 11);
   const px = r(), py = r(), ps = r(), pc = r();
   // Milky Way diagonal density bias
@@ -40,7 +40,7 @@ const galaxyStars = Array.from({ length: 520 }, (_, i) => {
   };
 });
 
-const farStars = Array.from({ length: 220 }, (_, i) => {
+const farStars = Array.from({ length: 120 }, (_, i) => {
   const r = lcg(i * 7 + 1);
   const px = r(), py = r(), ps = r(), pc = r();
   return {
@@ -54,7 +54,7 @@ const farStars = Array.from({ length: 220 }, (_, i) => {
   };
 });
 
-const midStars = Array.from({ length: 110 }, (_, i) => {
+const midStars = Array.from({ length: 60 }, (_, i) => {
   const r = lcg(i * 13 + 500);
   const px = r(), py = r(), ps = r(), pc = r();
   return {
@@ -286,25 +286,21 @@ export function AmbientJourney() {
         background:
           "linear-gradient(115deg," +
           "transparent 10%," +
-          "rgba(255,220,160,0.016) 26%," +
-          "rgba(210,200,255,0.032) 36%," +
-          "rgba(200,215,255,0.055) 46%," +
-          "rgba(255,220,160,0.024) 52%," +
-          "rgba(200,215,255,0.032) 62%," +
-          "rgba(180,190,240,0.018) 72%," +
+          "rgba(255,220,160,0.012) 26%," +
+          "rgba(210,200,255,0.024) 36%," +
+          "rgba(200,215,255,0.042) 46%," +
+          "rgba(255,220,160,0.018) 52%," +
+          "rgba(200,215,255,0.024) 62%," +
+          "rgba(180,190,240,0.014) 72%," +
           "transparent 84%)",
-        filter: "blur(52px)",
-        mixBlendMode: "screen",
       }} />
 
       {/* ── Nebula wisps — subtle colored soft clouds ────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background:
-          "radial-gradient(ellipse 28% 14% at 55% 30%, rgba(180,100,255,0.055) 0%, transparent 100%)," +
-          "radial-gradient(ellipse 20% 10% at 25% 60%, rgba(0,200,255,0.045)   0%, transparent 100%)," +
-          "radial-gradient(ellipse 18% 8%  at 78% 50%, rgba(255,100,80,0.038)  0%, transparent 100%)",
-        filter: "blur(32px)",
-        mixBlendMode: "screen",
+          "radial-gradient(ellipse 28% 14% at 55% 30%, rgba(180,100,255,0.042) 0%, transparent 100%)," +
+          "radial-gradient(ellipse 20% 10% at 25% 60%, rgba(0,200,255,0.035)   0%, transparent 100%)," +
+          "radial-gradient(ellipse 18% 8%  at 78% 50%, rgba(255,100,80,0.030)  0%, transparent 100%)",
       }} />
 
       {/* ── Galaxy dust — static, no parallax, deepest background ───────────── */}
