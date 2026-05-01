@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -331,6 +333,49 @@ body {
 
 .glass-sweep {
   animation: glass-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ── Orbit chip — comet sweeping the border ─────────────────────────────────── */
+@property --orbit-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.orbit-chip {
+  position: relative;
+  isolation: isolate;
+}
+
+.orbit-chip::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--orbit-angle),
+    transparent          0%,
+    transparent         80%,
+    rgba(0, 209, 255, 0.10) 83%,
+    rgba(0, 209, 255, 0.30) 88%,
+    rgba(0, 209, 255, 0.65) 93%,
+    rgba(255, 255, 255, 0.95) 97%,
+    rgba(255, 255, 255, 1.0) 99%,
+    transparent        100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  animation: orbit-sweep 2.8s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes orbit-sweep {
+  to { --orbit-angle: 360deg; }
 }
 
 @media (prefers-reduced-motion: reduce) {

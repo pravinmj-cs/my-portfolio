@@ -17,7 +17,7 @@ import {
 
 export const navItems = [
   { label: "Origin",     href: "#hero"       },
-  { label: "Resilio",    href: "#resilio"    },
+  { label: "Resileo",    href: "#resilio"    },
   { label: "Niyata",     href: "#niyata"     },
   { label: "HappyFox",   href: "#happyfox"   },
   { label: "Creativity", href: "#creativity", glow: true },
@@ -25,10 +25,10 @@ export const navItems = [
   { label: "Beyond",     href: "#beyond"     },
 ];
 
-// ── Resilio Labs ───────────────────────────────────────────────────────────────
+// ── Resileo Labs ───────────────────────────────────────────────────────────────
 export const resilioData = {
   eyebrow: "Earth · Launch pad",
-  title:   "Resilio Labs: where theory became real.",
+  title:   "Resileo Labs: where theory became real.",
   copy:    "The shift from code to consequences. Working inside an IIT Madras-incubated environment, I touched real systems for the first time — where engineering met expectations, and expectations had weight.",
   role:    "Project Associate — 6 months",
   accent:  "from-cyan-400/25 via-teal-400/20 to-white/5",
@@ -37,12 +37,12 @@ export const resilioData = {
     {
       title: "BI tool validation",
       body:
-        "Built and submitted a complete test milestone report — functional and automated testing of a BI tool — that impressed clients and extended the contract. Engineering with real stakes.",
+        "Owned the QA lane end-to-end — designed test plans, built automation suites for a BI tool, and ran the full validation cycle. One report. Client impressed. Contract extended.",
     },
     {
       title: "The first realisation",
       body:
-        "Operating inside IIT Madras's research environment, briefly pursuing a PhD track before pivoting to industry. This is where I understood: code is not the outcome. Impact is.",
+        "Operating inside IIT Madras's research environment, briefly pursuing a PhD track before pivoting to industry — where the feedback loops are shorter and the consequences are real.",
     },
   ],
 };

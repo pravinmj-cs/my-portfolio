@@ -149,10 +149,7 @@ export function AmbientJourney() {
   const nebulaOpacity = useTransform(s, [0, 0.5, 1], [0.20, 0.52, 1.0]);
   const sunRayOpacity = useTransform(s, [0, 0.3, 0.8, 1], [0.14, 0.30, 0.50, 0.18]);
 
-  // ── Star parallax (3 depth layers) ─────────────────────────────────────────
-  const farDrift  = useTransform(s, [0, 1], ["0vh",   "-6vh"]);
-  const midDrift  = useTransform(s, [0, 1], ["0vh",  "-16vh"]);
-  const nearDrift = useTransform(s, [0, 1], ["0vh",  "-32vh"]);
+  // ── Stars are a fixed backdrop — no parallax ────────────────────────────────
 
   // ── Warp flash between planets ──────────────────────────────────────────────
   const warpOpacity = useTransform(
@@ -275,27 +272,27 @@ export function AmbientJourney() {
       </div>
 
       {/* ── Far stars (barely move — they are distant suns) ──────────────────── */}
-      <motion.div style={{ y: farDrift }} className="absolute inset-0">
+      <div className="absolute inset-0">
         {farStars.map(st => (
           <span key={st.id}
             className={`star-dot star-far absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
               animationDelay: st.delay, animationDuration: st.dur }} />
         ))}
-      </motion.div>
+      </div>
 
       {/* ── Mid stars ────────────────────────────────────────────────────────── */}
-      <motion.div style={{ y: midDrift }} className="absolute inset-0">
+      <div className="absolute inset-0">
         {midStars.map(st => (
           <span key={st.id}
             className={`star-dot star-mid absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
               animationDelay: st.delay, animationDuration: st.dur }} />
         ))}
-      </motion.div>
+      </div>
 
       {/* ── Near stars + meteors (fastest layer) ─────────────────────────────── */}
-      <motion.div style={{ y: nearDrift }} className="absolute inset-0">
+      <div className="absolute inset-0">
         {nearStars.map(st => (
           <span key={st.id} className={`star-dot star-near absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
@@ -365,7 +362,7 @@ export function AmbientJourney() {
             </span>
           );
         })}
-      </motion.div>
+      </div>
 
       {/* ── Bright notable stars — fixed, no parallax, diffraction spikes ────── */}
       <div className="absolute inset-0">
@@ -514,7 +511,21 @@ export function AmbientJourney() {
               stroke="#5878a0" strokeWidth="0.6" strokeOpacity="0.55" />
 
             {/* Hull band — mid-body stripe */}
-            <rect x="25" y="64" width="14" height="3.5" fill="#c84020" fillOpacity="0.82" rx="0.5" />
+            <rect x="25" y="72" width="14" height="3.5" fill="#c84020" fillOpacity="0.82" rx="0.5" />
+
+            {/* MJP — NASA-style identifier along the fuselage */}
+            <text
+              x="32" y="46"
+              textAnchor="middle"
+              fontFamily="'Orbitron', 'Courier New', monospace"
+              fontWeight="700"
+              fontSize="6"
+              letterSpacing="2.5"
+              fill="#1c3a58"
+              fillOpacity="0.80"
+              transform="rotate(-90, 32, 46)"
+              style={{ userSelect: "none" }}
+            >MJP-52</text>
 
             {/* Canard fins — small, near top */}
             <path d="M 26,44 L 14,52 L 25,49 Z" fill="#8099b5" fillOpacity="0.92" />

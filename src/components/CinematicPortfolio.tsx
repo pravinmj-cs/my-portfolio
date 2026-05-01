@@ -242,13 +242,13 @@ function Hero() {
           <p className="mt-3 max-w-xl text-sm leading-6 text-starlight/58 sm:text-base sm:leading-7">
             I don&apos;t just write code. I turn complexity into systems people can depend on.
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-xs text-starlight/68 sm:text-sm" style={{ width: "fit-content" }}>
+          <div className="orbit-chip mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-xs text-starlight/68 sm:text-sm" style={{ width: "fit-content" }}>
             <GraduationCap size={15} className="text-sunlit shrink-0" />
-            <span>M.E. Computer Science</span>
+            <span>M.E. Computer Science · Sai Ram Engineering College</span>
             <span className="text-white/30 hidden xs:inline">·</span>
             <span className="hidden xs:inline">IIT Madras origin</span>
-            <span className="text-white/30 hidden sm:inline">·</span>
-            <span className="hidden sm:inline">Chennai</span>
+            <span className="text-white/30">·</span>
+            <span className="text-reef">7+ years in orbit</span>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <a
@@ -284,7 +284,7 @@ function Hero() {
             <div className="mt-8 space-y-3 border-l border-white/10 pl-5">
               {[
                 { dot: "bg-cyan-400",   label: "Earth",   desc: "Masters · Computer Science"         },
-                { dot: "bg-orange-400", label: "Mars",    desc: "Resilio Labs · Niyata · First orbit" },
+                { dot: "bg-orange-400", label: "Mars",    desc: "Resileo Labs · Niyata · First orbit" },
                 { dot: "bg-amber-300",  label: "Jupiter", desc: "HappyFox · Biggest mark"            },
                 { dot: "bg-yellow-200", label: "Saturn",  desc: "Packgine · Deep-space mission"       },
               ].map(({ dot, label, desc }) => (
@@ -311,7 +311,7 @@ function Hero() {
   );
 }
 
-// ─── Journey phases (Resilio Labs + Niyata) ───────────────────────────────────
+// ─── Journey phases (Resileo Labs + Niyata) ───────────────────────────────────
 function MetricCard({ value, label, icon: Icon }: (typeof happyFoxMetrics)[number]) {
   return (
     <div className="glass rounded-2xl p-5">
@@ -322,8 +322,8 @@ function MetricCard({ value, label, icon: Icon }: (typeof happyFoxMetrics)[numbe
   );
 }
 
-// ─── Resilio Labs ──────────────────────────────────────────────────────────────
-function Resilio() {
+// ─── Resileo Labs ──────────────────────────────────────────────────────────────
+function Resileo() {
   const d = resilioData;
   return (
     <Section
@@ -1349,7 +1349,7 @@ function Creativity() {
                   <span className="text-white font-medium">creativity unlocked how I express them.</span>
                 </p>
                 <p className="text-sm leading-6 text-starlight/65">
-                  At HappyFox, I was given a small opportunity to explore design through the PyCon event team.
+                  At <span style={{ color: "#FF6600" }}>HappyFox</span>, I was given a small opportunity to explore design through the PyCon event team.
                   I didn&apos;t treat it as a side task. I treated it as a new dimension — and squeezed every ounce
                   of creative energy out of it. This wasn&apos;t a blog post about it.{" "}
                   <span className="text-white font-medium">It was an identity unlock.</span>
@@ -1361,10 +1361,9 @@ function Creativity() {
                   Then this portfolio — a space journey told entirely in code.
                 </p>
                 <p className="text-sm leading-6 text-starlight/65">
-                  All credit to{" "}
                   <span className="text-reef font-medium">Pradeep (CTO)</span> and{" "}
-                  <span className="text-reef font-medium">Suresh (Engineering Manager)</span> for trusting me
-                  to independently run the PyCon event team and explore my design skills on my own terms.
+                  <span className="text-reef font-medium">Suresh (EM)</span> gave me the room.
+                  The culture and team gave me the fuel to run with it.
                 </p>
               </div>
             </div>
@@ -1604,7 +1603,7 @@ export function CinematicPortfolio() {
       <AmbientJourney />
       <TopNav />
       <Hero />
-      <Resilio />
+      <Resileo />
       <Niyata />
       <HappyFox />
       <Creativity />
