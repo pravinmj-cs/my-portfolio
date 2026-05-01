@@ -48,9 +48,7 @@ body {
 }
 
 .ambient-stage {
-  contain: paint;
   transform: translateZ(0);
-  will-change: transform;
 }
 
 .noise {
