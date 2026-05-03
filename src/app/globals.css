@@ -211,46 +211,45 @@ body {
 .planet-glow-earth {
   background: radial-gradient(
     circle at center,
-    transparent 48%,
-    rgba(60, 140, 255, 0.10) 56%,
-    rgba(30, 90, 220, 0.05) 64%,
-    transparent 70%
+    transparent 46%,
+    rgba(60, 140, 255, 0.18) 54%,
+    rgba(30, 90, 220, 0.09) 64%,
+    transparent 72%
   );
-  filter: blur(4px);
+  filter: blur(6px);
 }
 
 .planet-glow-mars {
   background: radial-gradient(
     circle at center,
-    transparent 46%,
-    rgba(210, 80, 35, 0.11) 54%,
-    rgba(180, 60, 20, 0.05) 63%,
-    transparent 70%
+    transparent 44%,
+    rgba(210, 80, 35, 0.20) 52%,
+    rgba(180, 60, 20, 0.10) 62%,
+    transparent 72%
   );
-  filter: blur(4px);
+  filter: blur(6px);
 }
 
 .planet-glow-jupiter {
   background: radial-gradient(
     circle at center,
-    transparent 46%,
-    rgba(220, 155, 65, 0.10) 54%,
-    rgba(200, 130, 50, 0.04) 64%,
-    transparent 70%
+    transparent 44%,
+    rgba(220, 155, 65, 0.18) 52%,
+    rgba(200, 130, 50, 0.08) 63%,
+    transparent 72%
   );
-  filter: blur(4px);
+  filter: blur(6px);
 }
 
 .planet-glow-saturn {
   background: radial-gradient(
     circle at center,
-    transparent 48%,
-    rgba(220, 185, 95, 0.07) 54%,
-    rgba(200, 160, 75, 0.03) 62%,
-    transparent 66%
+    rgba(220, 185, 95, 0.07) 0%,
+    rgba(200, 160, 75, 0.04) 45%,
+    transparent 72%
   );
-  filter: blur(3px);
-  overflow: hidden;
+  filter: blur(18px);
+  overflow: visible;
 }
 
 /* ── Shooting star — SVG-based, see AmbientJourney.tsx ── */

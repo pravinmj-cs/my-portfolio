@@ -331,7 +331,9 @@ function Hero() {
             transition={{ duration: 0.65, delay: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
             className="mt-7 max-w-5xl font-display text-4xl font-semibold leading-[0.92] text-white sm:text-5xl md:text-7xl lg:text-8xl"
           >
-            From Code to Creativity to Systems.
+            <span className="block">From Code</span>
+            <span className="block">to Creativity</span>
+            <span className="block">to Conviction.</span>
           </motion.h1>
 
           <motion.div
@@ -340,11 +342,7 @@ function Hero() {
             transition={{ duration: 0.55, delay: 0.48, ease: "easeOut" }}
           >
             <p className="mt-6 max-w-2xl text-lg leading-8 text-starlight/78 sm:text-xl md:text-2xl">
-              Backend Engineer <span className="text-reef">→</span> Technical Lead{" "}
-              <span className="text-reef">→</span> Founding Technical / Product Architect.
-            </p>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-starlight/58 sm:text-base sm:leading-7">
-              I don&apos;t just write code. I turn complexity into systems people can depend on.
+              From writing code, to shaping creativity, to building systems that think.
             </p>
           </motion.div>
 
@@ -356,9 +354,7 @@ function Hero() {
             style={{ width: "fit-content" }}
           >
             <GraduationCap size={15} className="text-sunlit shrink-0" />
-            <span>M.E. Computer Science · Sai Ram Engineering College</span>
-            <span className="text-white/30 hidden xs:inline">·</span>
-            <span className="hidden xs:inline">IIT Madras origin</span>
+            <span>M.E. Computer Science</span>
             <span className="text-white/30">·</span>
             <span className="text-reef">7+ years in orbit</span>
           </motion.div>

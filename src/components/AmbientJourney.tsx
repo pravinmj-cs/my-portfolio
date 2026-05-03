@@ -139,9 +139,9 @@ const shootingStars = [
 // All planets are anchored at viewport center (left-1/2 top-[44%]).
 // Framer x/y = OFFSET from that center. Scale is the dominant z-axis transform.
 function PlanetAnchor({
-  x, y, scale, opacity, rotate, children, className,
+  x, y, scale, opacity, rotate, filter, children, className,
 }: {
-  x: MotionValue<number> | MotionValue<string>; y: MotionValue<number> | MotionValue<string>; scale: MotionValue<number>; opacity: MotionValue<number>; rotate?: MotionValue<number>; children: React.ReactNode; className?: string;
+  x: MotionValue<number> | MotionValue<string>; y: MotionValue<number> | MotionValue<string>; scale: MotionValue<number>; opacity: MotionValue<number>; rotate?: MotionValue<number>; filter?: MotionValue<string>; children: React.ReactNode; className?: string;
 }) {
   return (
     // zIndex:10 ensures planets always paint above all star/meteor layers
@@ -151,9 +151,10 @@ function PlanetAnchor({
         style={{
           x, y, scale, opacity,
           ...(rotate !== undefined ? { rotate } : {}),
+          ...(filter !== undefined ? { filter } : {}),
           translateX: "-50%",
           translateY: "-50%",
-          willChange: "transform, opacity",
+          willChange: "transform, opacity, filter",
         }}
       >
         {children}
@@ -189,7 +190,21 @@ export function AmbientJourney() {
   const nebulaOpacity = useTransform(s, [0, 0.5, 1], [0.20, 0.52, 1.0]);
   const sunRayOpacity = useTransform(s, [0, 0.3, 0.8, 1], [0.14, 0.30, 0.50, 0.18]);
 
-  // ── Stars are a fixed backdrop — no parallax ────────────────────────────────
+  // ── Star parallax — rocket moves upper-right, stars stream lower-left ────────
+  // Direction: Y positive (down) + X negative (left) = opposite of rocket trajectory
+  // Scale: zoom-through-space — near layers expand much faster than far
+  const galaxyScale = useTransform(s, [0, 1], [1.00, 1.04]);
+  const galaxyY     = useTransform(s, [0, 1], ["0%",  "2%"]);
+  const galaxyX     = useTransform(s, [0, 1], ["0%", "-1%"]);
+  const farScale    = useTransform(s, [0, 1], [1.00, 1.09]);
+  const farY        = useTransform(s, [0, 1], ["0%",  "5%"]);
+  const farX        = useTransform(s, [0, 1], ["0%", "-2.5%"]);
+  const midScale    = useTransform(s, [0, 1], [1.00, 1.18]);
+  const midY        = useTransform(s, [0, 1], ["0%",  "11%"]);
+  const midX        = useTransform(s, [0, 1], ["0%", "-5%"]);
+  const nearScale   = useTransform(s, [0, 1], [1.00, 1.35]);
+  const nearY       = useTransform(s, [0, 1], ["0%",  "20%"]);
+  const nearX       = useTransform(s, [0, 1], ["0%", "-10%"]);
 
   // ── Warp flash between planets ──────────────────────────────────────────────
   const warpOpacity = useTransform(
@@ -230,25 +245,29 @@ export function AmbientJourney() {
   const earthX  = useTransform(s, [0,    0.04, 0.10, 0.18, 0.21], ["-6vw","4vw","18vw","34vw","48vw"]);
   const earthY  = useTransform(s, [0,    0.04, 0.10, 0.18, 0.21], ["2vh","-2vh","-8vh","-18vh","-30vh"]);
 
-  // ── Mars: tiny speck ahead → explosive close flyby on the RIGHT → gone ────────
+  // ── Mars: visible as faint speck from distance → explosive close flyby → recession ─
   // Rocket at ~(20–34vw, 61–50vh). Mars appears ahead-right of rocket, passes right.
-  // Scale curve: spend long time tiny, then sudden explosive approach, fast recession
-  const marsOp = useTransform(s, [0.16, 0.20, 0.245, 0.27, 0.30, 0.33, 0.35], [0, 0.3, 0.85, 1.0, 1.0, 0.4, 0]);
-  const marsSc = useTransform(s, [0.16, 0.19, 0.22,  0.26, 0.29, 0.32, 0.35], [0.006, 0.015, 0.10, 2.5, 1.0, 0.12, 0.006]);
-  const marsX  = useTransform(s, [0.16, 0.22, 0.26,  0.30, 0.35], ["14vw","14vw","16vw","20vw","32vw"]);
-  const marsY  = useTransform(s, [0.16, 0.22, 0.26,  0.30, 0.35], ["4vh", "4vh", "6vh", "10vh","22vh"]);
+  // Opacity starts near-zero early so it reads as a distant dot before the flyby.
+  const marsOp = useTransform(s, [0.10, 0.16, 0.20, 0.245, 0.27, 0.30, 0.33, 0.37], [0.04, 0.12, 0.35, 0.85, 1.0, 1.0, 0.35, 0.02]);
+  const marsSc = useTransform(s, [0.10, 0.16, 0.19, 0.22,  0.26, 0.29, 0.32, 0.37], [0.003, 0.006, 0.015, 0.10, 2.5, 1.0, 0.12, 0.003]);
+  const marsX  = useTransform(s, [0.10, 0.16, 0.22, 0.26,  0.30, 0.37], ["12vw","14vw","14vw","16vw","20vw","32vw"]);
+  const marsY  = useTransform(s, [0.10, 0.16, 0.22, 0.26,  0.30, 0.37], ["3vh", "4vh", "4vh", "6vh", "10vh","22vh"]);
+  // Blur: atmospheric haze when far, sharp when close
+  const marsFilter = useTransform(marsSc, [0.003, 0.06, 0.4, 4], ["blur(3px)", "blur(1.2px)", "blur(0px)", "blur(0px)"]);
 
-  // ── Jupiter: tiny speck ahead → explosive close flyby on the LEFT → gone ──────
+  // ── Jupiter: visible as faint speck → explosive close flyby on LEFT → recession ─
   // Rocket at ~(34–52vw, 50–37vh). Jupiter appears ahead-left, passes left.
-  const jupOp = useTransform(s, [0.30, 0.34, 0.395, 0.42, 0.46, 0.50, 0.55], [0, 0.3, 0.85, 1.0, 1.0, 0.4, 0]);
-  const jupSc = useTransform(s, [0.30, 0.34, 0.37,  0.43, 0.47, 0.51, 0.55], [0.006, 0.018, 0.14, 3.0, 1.1, 0.14, 0.006]);
-  const jupX  = useTransform(s, [0.30, 0.37, 0.43,  0.48, 0.55], ["-12vw","-12vw","-14vw","-20vw","-34vw"]);
-  const jupY  = useTransform(s, [0.30, 0.37, 0.43,  0.48, 0.55], ["-4vh", "-4vh", "-6vh", "10vh", "24vh"]);
+  const jupOp = useTransform(s, [0.22, 0.30, 0.34, 0.395, 0.42, 0.46, 0.50, 0.56], [0.04, 0.12, 0.35, 0.85, 1.0, 1.0, 0.35, 0.02]);
+  const jupSc = useTransform(s, [0.22, 0.30, 0.34, 0.37,  0.43, 0.47, 0.51, 0.56], [0.003, 0.006, 0.018, 0.14, 3.0, 1.1, 0.14, 0.003]);
+  const jupX  = useTransform(s, [0.22, 0.30, 0.37, 0.43,  0.48, 0.56], ["-10vw","-12vw","-12vw","-14vw","-20vw","-34vw"]);
+  const jupY  = useTransform(s, [0.22, 0.30, 0.37, 0.43,  0.48, 0.56], ["-3vh", "-4vh", "-4vh", "-6vh", "10vh", "24vh"]);
+  const jupFilter = useTransform(jupSc, [0.003, 0.06, 0.4, 4], ["blur(3px)", "blur(1.2px)", "blur(0px)", "blur(0px)"]);
 
-  // ── Saturn: the destination — emerges from darkness, grows to fill everything ─
+  // ── Saturn: emerges as a distant speck → grows to fill everything ─────────────
   // Rocket at ~(60–84vw, 28–6vh). Saturn appears dead ahead — you fly INTO it.
-  const satOp = useTransform(s, [0.62, 0.67, 0.72, 0.85, 1.0], [0, 0.4, 1.0, 1.0, 0.75]);
-  const satSc = useTransform(s, [0.62, 0.66, 0.72, 0.82, 0.92, 1.0], [0.006, 0.025, 0.18, 2.4, 3.4, 4.5]);
+  const satOp = useTransform(s, [0.48, 0.62, 0.67, 0.72, 0.85, 1.0], [0.03, 0.18, 0.45, 1.0, 1.0, 0.75]);
+  const satSc = useTransform(s, [0.48, 0.62, 0.66, 0.72, 0.82, 0.92, 1.0], [0.003, 0.006, 0.025, 0.18, 2.4, 3.4, 4.5]);
+  const satFilter = useTransform(satSc, [0.003, 0.06, 0.4, 4], ["blur(3px)", "blur(1.2px)", "blur(0px)", "blur(0px)"]);
   const satX  = useTransform(s, [0.62, 0.75, 0.90, 1.0], ["6vw", "3vw", "1vw", "-1vw"]);
   const satY  = useTransform(s, [0.62, 0.75, 0.90, 1.0], ["4vh", "1vh", "-1vh","-3vh"]);
   const satRt = useTransform(s, [0.62, 1.0],              [-18, 12]);
@@ -342,38 +361,38 @@ export function AmbientJourney() {
           "radial-gradient(ellipse 24% 12% at 48% 78%, rgba(0,160,140,0.030)  0%, transparent 100%)",
       }} />
 
-      {/* ── Galaxy dust — static, no parallax, deepest background ───────────── */}
-      <div className="absolute inset-0">
+      {/* ── Galaxy dust — slowest parallax layer, deepest background ──────────── */}
+      <motion.div className="absolute inset-0" style={{ scale: galaxyScale, y: galaxyY, x: galaxyX, willChange: "transform" }}>
         {galaxyStars.map(st => (
           <span key={st.id}
             className={`star-galaxy absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top,
               width: st.size, height: st.size }} />
         ))}
-      </div>
+      </motion.div>
 
-      {/* ── Far stars (barely move — they are distant suns) ──────────────────── */}
-      <div className="absolute inset-0">
+      {/* ── Far stars ────────────────────────────────────────────────────────── */}
+      <motion.div className="absolute inset-0" style={{ scale: farScale, y: farY, x: farX, willChange: "transform" }}>
         {farStars.map(st => (
           <span key={st.id}
             className={`star-dot star-far absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
               animationDelay: st.delay, animationDuration: st.dur }} />
         ))}
-      </div>
+      </motion.div>
 
       {/* ── Mid stars ────────────────────────────────────────────────────────── */}
-      <div className="absolute inset-0">
+      <motion.div className="absolute inset-0" style={{ scale: midScale, y: midY, x: midX, willChange: "transform" }}>
         {midStars.map(st => (
           <span key={st.id}
             className={`star-dot star-mid absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
               animationDelay: st.delay, animationDuration: st.dur }} />
         ))}
-      </div>
+      </motion.div>
 
-      {/* ── Near stars + meteors (fastest layer) ─────────────────────────────── */}
-      <div className="absolute inset-0">
+      {/* ── Near stars + meteors (fastest parallax layer) ────────────────────── */}
+      <motion.div className="absolute inset-0" style={{ scale: nearScale, y: nearY, x: nearX, willChange: "transform" }}>
         {nearStars.map(st => (
           <span key={st.id} className={`star-dot star-near absolute rounded-full bg-white ${st.col}`}
             style={{ left: st.left, top: st.top, width: st.size, height: st.size,
@@ -443,7 +462,7 @@ export function AmbientJourney() {
             </span>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* ── Bright notable stars — fixed, no parallax, diffraction spikes ────── */}
       <div className="absolute inset-0">
@@ -468,21 +487,22 @@ export function AmbientJourney() {
           <div className="planet-glow planet-glow-earth" />
         </PlanetAnchor>
 
-        <PlanetAnchor x={marsX} y={marsY} scale={marsSc} opacity={marsOp}
+        <PlanetAnchor x={marsX} y={marsY} scale={marsSc} opacity={marsOp} filter={marsFilter}
           className="h-[22rem] w-[22rem] md:h-[40rem] md:w-[40rem]">
           <MarsPlanet />
           <div className="planet-glow planet-glow-mars" />
         </PlanetAnchor>
 
-        <PlanetAnchor x={jupX} y={jupY} scale={jupSc} opacity={jupOp}
+        <PlanetAnchor x={jupX} y={jupY} scale={jupSc} opacity={jupOp} filter={jupFilter}
           className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
           <JupiterPlanet />
           <div className="planet-glow planet-glow-jupiter" />
         </PlanetAnchor>
 
-        <PlanetAnchor x={satX} y={satY} scale={satSc} opacity={satOp} rotate={satRt}
+        <PlanetAnchor x={satX} y={satY} scale={satSc} opacity={satOp} rotate={satRt} filter={satFilter}
           className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
           <SaturnPlanet />
+          <div className="planet-glow planet-glow-saturn" />
         </PlanetAnchor>
       </>}
 
