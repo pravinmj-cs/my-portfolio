@@ -9,6 +9,7 @@ type SectionProps = {
   leftSlot?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  eyebrowClassName?: string;
 };
 
 function WordReveal({ text, className }: { text: string; className?: string }) {
@@ -32,7 +33,7 @@ function WordReveal({ text, className }: { text: string; className?: string }) {
   );
 }
 
-export function Section({ id, eyebrow, title, copy, leftSlot, children, className }: SectionProps) {
+export function Section({ id, eyebrow, title, copy, leftSlot, children, className, eyebrowClassName }: SectionProps) {
   return (
     <section id={id} className={cn("section-shell relative z-10", className)}>
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
@@ -42,7 +43,7 @@ export function Section({ id, eyebrow, title, copy, leftSlot, children, classNam
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="font-display text-sm font-semibold uppercase tracking-[0.28em] text-reef"
+            className={cn("font-display text-sm font-semibold uppercase tracking-[0.28em] text-reef", eyebrowClassName)}
           >
             {eyebrow}
           </motion.p>

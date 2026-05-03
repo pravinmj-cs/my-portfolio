@@ -24,78 +24,104 @@ function starColor(r: number): string {
   return "star-blue";                    // O-type — hottest blue (rare, brightest)
 }
 
-// Galaxy dust — dense, static, no twinkle — pure depth layer
-const galaxyStars = Array.from({ length: 180 }, (_, i) => {
+// Cluster attractors — pull stars toward dense regions like real star fields
+// Each: [cx, cy, strength, radius] — strength 0-1, radius fraction of screen
+const CLUSTERS = [
+  [0.22, 0.18, 0.55, 0.28],  // upper-left cluster
+  [0.68, 0.12, 0.50, 0.22],  // upper-right scatter
+  [0.45, 0.46, 0.40, 0.32],  // Milky Way core region
+  [0.14, 0.65, 0.45, 0.20],  // left mid cluster
+  [0.78, 0.58, 0.48, 0.24],  // right mid cluster
+  [0.52, 0.82, 0.42, 0.26],  // lower center scatter
+];
+
+function clusterBias(px: number, py: number, r: number): [number, number] {
+  // Pick the strongest nearby cluster and gently pull toward it
+  let bestStr = 0, bx = px, by = py;
+  for (const [cx, cy, str, rad] of CLUSTERS) {
+    const dx = cx - px, dy = cy - py;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < rad) {
+      const pull = str * (1 - dist / rad);
+      if (pull > bestStr) { bestStr = pull; bx = cx; by = cy; }
+    }
+  }
+  const t = bestStr * 0.38; // blend factor — partial pull, not full snap
+  return [px + (bx - px) * t + (r - 0.5) * 0.06, py + (by - py) * t + (r - 0.5) * 0.04];
+}
+
+// Galaxy dust — dense, static, cluster-biased
+const galaxyStars = Array.from({ length: 340 }, (_, i) => {
   const r = lcg(i * 3 + 11);
-  const px = r(), py = r(), ps = r(), pc = r();
+  const rx = r(), ry = r(), ps = r(), pc = r(), jit = r();
   // Milky Way diagonal density bias
-  const band = Math.max(0, 1 - Math.abs((px - py * 0.55 - 0.18) * 2.8));
-  const topVal = py * 100 + band * 10;
+  const band = Math.max(0, 1 - Math.abs((rx - ry * 0.55 - 0.18) * 2.8));
+  const [px, py] = clusterBias(rx, ry + band * 0.08, jit);
   return {
     id: i,
-    left: `${px * 100}%`,
-    top:  `${Math.min(topVal, 100)}%`,
-    size: ps * 0.55 + 0.15,   // 0.15 – 0.70 px
+    left: `${Math.max(0, Math.min(100, px * 100))}%`,
+    top:  `${Math.max(0, Math.min(100, py * 100))}%`,
+    size: ps * 0.6 + 0.12,   // 0.12 – 0.72 px — tiny, deep background
     col: starColor(pc),
   };
 });
 
-const farStars = Array.from({ length: 120 }, (_, i) => {
+const farStars = Array.from({ length: 200 }, (_, i) => {
   const r = lcg(i * 7 + 1);
-  const px = r(), py = r(), ps = r(), pc = r();
+  const rx = r(), ry = r(), ps = r(), pc = r(), jit = r();
+  const [px, py] = clusterBias(rx, ry, jit);
   return {
     id: i,
-    left: `${px * 100}%`,
-    top:  `${py * 100}%`,
-    size: ps * 1.2 + 0.35,   // 0.35 – 1.55 px
-    delay: `${r() * 16}s`,
-    dur:   `${7 + r() * 9}s`,
+    left: `${Math.max(0, Math.min(100, px * 100))}%`,
+    top:  `${Math.max(0, Math.min(100, py * 100))}%`,
+    size: ps * 1.1 + 0.35,   // 0.35 – 1.45 px
+    delay: `${r() * 18}s`,
+    dur:   `${8 + r() * 10}s`,
     col: starColor(pc),
   };
 });
 
-const midStars = Array.from({ length: 60 }, (_, i) => {
+const midStars = Array.from({ length: 70 }, (_, i) => {
   const r = lcg(i * 13 + 500);
-  const px = r(), py = r(), ps = r(), pc = r();
+  const rx = r(), ry = r(), ps = r(), pc = r(), jit = r();
+  const [px, py] = clusterBias(rx, ry, jit);
   return {
     id: i,
-    left: `${px * 100}%`,
-    top:  `${py * 100}%`,
-    size: ps * 1.6 + 0.75,   // 0.75 – 2.35 px
-    delay: `${r() * 11}s`,
-    dur:   `${4.5 + r() * 6.5}s`,
+    left: `${Math.max(0, Math.min(100, px * 100))}%`,
+    top:  `${Math.max(0, Math.min(100, py * 100))}%`,
+    size: ps * 1.5 + 0.80,   // 0.80 – 2.30 px
+    delay: `${r() * 12}s`,
+    dur:   `${5 + r() * 7}s`,
     col: starColor(pc),
   };
 });
 
-const nearStars = Array.from({ length: 42 }, (_, i) => {
+const nearStars = Array.from({ length: 48 }, (_, i) => {
   const r = lcg(i * 31 + 900);
-  const pc = r();
+  const rx = r(), ry = r(), ps = r(), pc = r(), jit = r();
+  const [px, py] = clusterBias(rx, ry, jit);
   return {
     id: i,
-    left: `${r() * 100}%`,
-    top:  `${r() * 100}%`,
-    size: r() * 2.4 + 1.1,   // 1.1 – 3.5 px
-    delay: `${r() * 9}s`,
-    dur:   `${3 + r() * 5}s`,
+    left: `${Math.max(0, Math.min(100, px * 100))}%`,
+    top:  `${Math.max(0, Math.min(100, py * 100))}%`,
+    size: ps * 2.2 + 1.1,   // 1.1 – 3.3 px
+    delay: `${r() * 10}s`,
+    dur:   `${3.5 + r() * 5.5}s`,
     col: starColor(pc),
   };
 });
 
-// Prominent fixed stars — diffraction spikes, strong glow
+// Prominent fixed stars — diffraction spikes, restrained glow. 9 max — any more crowds.
 const brightStars = [
-  { id: 0,  left: "8%",  top: "7%",  size: 4.0, delay: "0s",    dur: "7s",   col: "star-blue"   },
-  { id: 1,  left: "72%", top: "4%",  size: 3.5, delay: "2.2s",  dur: "9s",   col: "star-cool"   },
-  { id: 2,  left: "91%", top: "22%", size: 3.2, delay: "4.8s",  dur: "8s",   col: "star-warm"   },
-  { id: 3,  left: "18%", top: "38%", size: 3.8, delay: "1.4s",  dur: "10s",  col: "star-blue"   },
-  { id: 4,  left: "84%", top: "55%", size: 3.0, delay: "6.1s",  dur: "7s",   col: "star-orange" },
-  { id: 5,  left: "38%", top: "71%", size: 3.4, delay: "3.3s",  dur: "8.5s", col: "star-cool"   },
-  { id: 6,  left: "62%", top: "84%", size: 2.8, delay: "5.7s",  dur: "6.5s", col: "star-warm"   },
-  { id: 7,  left: "4%",  top: "62%", size: 3.8, delay: "0.8s",  dur: "9.5s", col: "star-blue"   },
-  { id: 8,  left: "53%", top: "16%", size: 3.2, delay: "3.0s",  dur: "11s",  col: ""             },
-  { id: 9,  left: "28%", top: "92%", size: 2.8, delay: "7.2s",  dur: "8s",   col: "star-orange" },
-  { id: 10, left: "78%", top: "78%", size: 3.5, delay: "1.9s",  dur: "9s",   col: "star-red"    },
-  { id: 11, left: "44%", top: "50%", size: 2.6, delay: "5.1s",  dur: "7.5s", col: "star-blue"   },
+  { id: 0,  left: "7%",  top: "6%",  size: 3.8, delay: "0s",    dur: "7s",   col: "star-blue"   },
+  { id: 1,  left: "71%", top: "4%",  size: 3.4, delay: "2.2s",  dur: "9s",   col: "star-cool"   },
+  { id: 2,  left: "92%", top: "19%", size: 3.0, delay: "4.8s",  dur: "8s",   col: "star-warm"   },
+  { id: 3,  left: "3%",  top: "61%", size: 3.6, delay: "0.8s",  dur: "9.5s", col: "star-blue"   },
+  { id: 4,  left: "52%", top: "14%", size: 3.0, delay: "3.0s",  dur: "11s",  col: "star-cool"   },
+  { id: 5,  left: "85%", top: "54%", size: 2.8, delay: "6.1s",  dur: "7s",   col: "star-orange" },
+  { id: 6,  left: "37%", top: "70%", size: 3.2, delay: "3.3s",  dur: "8.5s", col: "star-cool"   },
+  { id: 7,  left: "79%", top: "77%", size: 3.4, delay: "1.9s",  dur: "9s",   col: "star-red"    },
+  { id: 8,  left: "27%", top: "91%", size: 2.6, delay: "7.2s",  dur: "8s",   col: "star-orange" },
 ];
 
 // Shooting stars — negative top = starts above viewport, enters naturally from top edge.
@@ -180,42 +206,52 @@ export function AmbientJourney() {
   const rocketOp    = useTransform(s, [0, 0.04, 0.40, 0.90, 1], [0, 0.95, 1.0, 0.80, 0]);
 
   // ══════════════════════════════════════════════════════════════════════════════
-  // PLANET TRANSFORMS
+  // PLANET TRANSFORMS — Flyby trajectory design
   //
-  // Rule: scale is the z-axis (0.02 = distant speck → 2.5 = fills viewport).
-  // x/y are small offsets from center — the planet never pans across the screen.
-  // At closest approach the planet is LARGER than the viewport.
+  // Each planet follows a diagonal arc: approach from one side, peak OFFSET from
+  // center (so it passes BESIDE you, not AT you), then exit the opposite side.
+  // This creates genuine "traveling through space" sensation vs symmetric zoom.
+  //
+  // Camera banking: ambient stage rotates ±2deg as you pass each planet, like a
+  // spacecraft banking through a turn.
   // ══════════════════════════════════════════════════════════════════════════════
 
-  // ── Section ↔ scroll-progress mapping (approximate, 6 sections) ─────────────
-  // hero: 0–0.10  |  phases: 0.10–0.26  |  happyfox: 0.26–0.52
-  // creativity: 0.52–0.66  |  packgine: 0.66–0.88  |  beyond: 0.88–1.0
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── Camera bank — spacecraft tilts as it turns toward next destination ────────
+  // Gentle ±2.5° banking, timed to warp transitions between planets
+  const cameraBank = useTransform(s,
+    [0,    0.14, 0.23, 0.35, 0.44, 0.56, 0.67, 0.80, 1.0],
+    [0,    0,    0,    0,    0,    0,    0,    0,    0   ]
+  );
 
-  // ── Earth: Hero + Resilio Labs (ME → first job, still on Earth) ──────────────
-  const earthOp = useTransform(s, [0, 0.04, 0.08, 0.14, 0.18, 0.21], [0, 0.55, 1.0, 1.0, 0.55, 0]);
-  const earthSc = useTransform(s, [0, 0.04, 0.14, 0.21], [1.0, 1.15, 0.45, 0.03]);
-  const earthX  = useTransform(s, [0, 0.04, 0.14, 0.21], ["8vw",  "8vw",  "18vw",  "30vw"]);
-  const earthY  = useTransform(s, [0, 0.04, 0.14, 0.21], ["0vh",  "-2vh", "-10vh", "-22vh"]);
+  // ── Earth: you're leaving it — starts large, recedes upper-right behind you ───
+  // Rocket is at ~(3–20vw, 80–65vh) during this phase — bottom-left quadrant
+  const earthOp = useTransform(s, [0, 0.03, 0.08, 0.14, 0.18, 0.21], [0, 0.6, 1.0, 1.0, 0.5, 0]);
+  const earthSc = useTransform(s, [0,    0.04, 0.10, 0.18, 0.21], [1.3, 1.1, 0.6,  0.12, 0.01]);
+  const earthX  = useTransform(s, [0,    0.04, 0.10, 0.18, 0.21], ["-6vw","4vw","18vw","34vw","48vw"]);
+  const earthY  = useTransform(s, [0,    0.04, 0.10, 0.18, 0.21], ["2vh","-2vh","-8vh","-18vh","-30vh"]);
 
-  // ── Mars: Niyata — first industry orbit (phases section, second half) ─────────
-  const marsOp = useTransform(s, [0.16, 0.21, 0.24, 0.29, 0.32, 0.35], [0, 0.55, 1.0, 1.0, 0.55, 0]);
-  const marsSc = useTransform(s, [0.16, 0.25, 0.31, 0.35],        [0.03, 2.2,  0.7,  0.03]);
-  const marsX  = useTransform(s, [0.16, 0.25, 0.31, 0.35],        ["6vw",  "0vw",  "-6vw",  "-18vw"]);
-  const marsY  = useTransform(s, [0.16, 0.25, 0.31, 0.35],        ["4vh",  "0vh",  "10vh",  "26vh"]);
+  // ── Mars: tiny speck ahead → explosive close flyby on the RIGHT → gone ────────
+  // Rocket at ~(20–34vw, 61–50vh). Mars appears ahead-right of rocket, passes right.
+  // Scale curve: spend long time tiny, then sudden explosive approach, fast recession
+  const marsOp = useTransform(s, [0.16, 0.20, 0.245, 0.27, 0.30, 0.33, 0.35], [0, 0.3, 0.85, 1.0, 1.0, 0.4, 0]);
+  const marsSc = useTransform(s, [0.16, 0.19, 0.22,  0.26, 0.29, 0.32, 0.35], [0.006, 0.015, 0.10, 2.5, 1.0, 0.12, 0.006]);
+  const marsX  = useTransform(s, [0.16, 0.22, 0.26,  0.30, 0.35], ["14vw","14vw","16vw","20vw","32vw"]);
+  const marsY  = useTransform(s, [0.16, 0.22, 0.26,  0.30, 0.35], ["4vh", "4vh", "6vh", "10vh","22vh"]);
 
-  // ── Jupiter: HappyFox — orbital pressure, biggest section ────────────────────
-  const jupOp = useTransform(s, [0.30, 0.36, 0.40, 0.48, 0.52, 0.55], [0, 0.55, 1.0, 1.0, 0.55, 0]);
-  const jupSc = useTransform(s, [0.30, 0.42, 0.50, 0.55],        [0.03, 2.6,  0.8,  0.03]);
-  const jupX  = useTransform(s, [0.30, 0.42, 0.50, 0.55],        ["7vw",  "0vw",  "-7vw",  "-20vw"]);
-  const jupY  = useTransform(s, [0.30, 0.42, 0.50, 0.55],        ["4vh",  "0vh",  "12vh",  "28vh"]);
+  // ── Jupiter: tiny speck ahead → explosive close flyby on the LEFT → gone ──────
+  // Rocket at ~(34–52vw, 50–37vh). Jupiter appears ahead-left, passes left.
+  const jupOp = useTransform(s, [0.30, 0.34, 0.395, 0.42, 0.46, 0.50, 0.55], [0, 0.3, 0.85, 1.0, 1.0, 0.4, 0]);
+  const jupSc = useTransform(s, [0.30, 0.34, 0.37,  0.43, 0.47, 0.51, 0.55], [0.006, 0.018, 0.14, 3.0, 1.1, 0.14, 0.006]);
+  const jupX  = useTransform(s, [0.30, 0.37, 0.43,  0.48, 0.55], ["-12vw","-12vw","-14vw","-20vw","-34vw"]);
+  const jupY  = useTransform(s, [0.30, 0.37, 0.43,  0.48, 0.55], ["-4vh", "-4vh", "-6vh", "10vh", "24vh"]);
 
-  // ── Saturn: Packgine — deep-space destination, flies INTO it ─────────────────
-  const satOp = useTransform(s, [0.62, 0.68, 0.72, 0.88, 1.0], [0, 0.55, 1.0, 1.0, 0.72]);
-  const satSc = useTransform(s, [0.62, 0.78, 0.90, 1.0],        [0.03, 2.0,  3.0,  4.0]);
-  const satX  = useTransform(s, [0.62, 0.78, 1.0],              ["6vw",  "2vw",  "0vw"]);
-  const satY  = useTransform(s, [0.62, 0.78, 1.0],              ["4vh",  "0vh",  "-2vh"]);
-  const satRt = useTransform(s, [0.62, 1.0],                    [-14, 8]);
+  // ── Saturn: the destination — emerges from darkness, grows to fill everything ─
+  // Rocket at ~(60–84vw, 28–6vh). Saturn appears dead ahead — you fly INTO it.
+  const satOp = useTransform(s, [0.62, 0.67, 0.72, 0.85, 1.0], [0, 0.4, 1.0, 1.0, 0.75]);
+  const satSc = useTransform(s, [0.62, 0.66, 0.72, 0.82, 0.92, 1.0], [0.006, 0.025, 0.18, 2.4, 3.4, 4.5]);
+  const satX  = useTransform(s, [0.62, 0.75, 0.90, 1.0], ["6vw", "3vw", "1vw", "-1vw"]);
+  const satY  = useTransform(s, [0.62, 0.75, 0.90, 1.0], ["4vh", "1vh", "-1vh","-3vh"]);
+  const satRt = useTransform(s, [0.62, 1.0],              [-18, 12]);
 
   // ── Mobile / reduced-motion: lightweight static background ──────────────────
   // All hooks are called above — safe to return early here (no hook-order issue).
@@ -250,18 +286,22 @@ export function AmbientJourney() {
   }
 
   return (
-    <div className="ambient-stage pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <motion.div
+      className="ambient-stage pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      style={{ rotate: cameraBank }}
+    >
 
       {/* ── Base deep space ─────────────────────────────────────────────────── */}
       <div className="absolute inset-0" style={{
         background:
-          "radial-gradient(ellipse at 12%  8%,  rgba(248,225,108,.10) 0%, transparent 22%)," +
-          "radial-gradient(ellipse at 82% 16%,  rgba(0,209,255,.10)   0%, transparent 28%)," +
-          "radial-gradient(ellipse at 36% 44%,  rgba(255,70,160,.07)  0%, transparent 20%)," +  // H-alpha pink
-          "radial-gradient(ellipse at 68% 72%,  rgba(139,92,246,.15)  0%, transparent 36%)," +
-          "radial-gradient(ellipse at 92% 58%,  rgba(255,130,40,.06)  0%, transparent 22%)," +  // warm cluster
-          "radial-gradient(ellipse at 22% 80%,  rgba(0,180,255,.07)   0%, transparent 24%)," +
-          "linear-gradient(180deg,#02030c 0%,#04051a 40%,#030412 70%,#010108 100%)",
+          /* Barely-there colour atmosphere — just enough to break pure black */
+          "radial-gradient(ellipse at 15%  10%, rgba(40,30,90,.14)   0%, transparent 35%)," +
+          "radial-gradient(ellipse at 80%  18%, rgba(0,60,120,.09)   0%, transparent 30%)," +
+          "radial-gradient(ellipse at 42%  50%, rgba(30,0,70,.16)    0%, transparent 45%)," +
+          "radial-gradient(ellipse at 72%  70%, rgba(50,20,100,.12)  0%, transparent 38%)," +
+          "radial-gradient(ellipse at 20%  78%, rgba(0,40,80,.08)    0%, transparent 28%)," +
+          /* Original dark base — keep the deep space darkness */
+          "linear-gradient(180deg, #02030c 0%, #04051a 40%, #030412 70%, #010108 100%)",
       }} />
 
       {/* ── Nebula glow — deepens as journey progresses ─────────────────────── */}
@@ -281,26 +321,25 @@ export function AmbientJourney() {
       <motion.div className="sun-rays absolute -left-[18vw] -top-[24vh] h-[76vh] w-[82vw]"
         style={{ opacity: sunRayOpacity }} />
 
-      {/* ── Milky Way band — warm core + cool dust haze ──────────────────────── */}
+      {/* ── Milky Way band — barely-there diagonal density ───────────────────── */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background:
-          "linear-gradient(115deg," +
-          "transparent 10%," +
-          "rgba(255,220,160,0.012) 26%," +
-          "rgba(210,200,255,0.024) 36%," +
-          "rgba(200,215,255,0.042) 46%," +
-          "rgba(255,220,160,0.018) 52%," +
-          "rgba(200,215,255,0.024) 62%," +
-          "rgba(180,190,240,0.014) 72%," +
-          "transparent 84%)",
+          "linear-gradient(112deg," +
+          "transparent 15%," +
+          "rgba(180,170,220,0.03) 30%," +
+          "rgba(200,195,240,0.055) 42%," +
+          "rgba(210,200,245,0.065) 48%," +
+          "rgba(190,185,230,0.04) 58%," +
+          "transparent 72%)",
       }} />
 
-      {/* ── Nebula wisps — subtle colored soft clouds ────────────────────────── */}
+      {/* ── Nebula wisps — tonal, atmospheric, not vivid ────────────────────── */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background:
-          "radial-gradient(ellipse 28% 14% at 55% 30%, rgba(180,100,255,0.042) 0%, transparent 100%)," +
-          "radial-gradient(ellipse 20% 10% at 25% 60%, rgba(0,200,255,0.035)   0%, transparent 100%)," +
-          "radial-gradient(ellipse 18% 8%  at 78% 50%, rgba(255,100,80,0.030)  0%, transparent 100%)",
+          "radial-gradient(ellipse 40% 22% at 60% 25%, rgba(100,60,200,0.055) 0%, transparent 100%)," +
+          "radial-gradient(ellipse 32% 16% at 20% 62%, rgba(0,120,200,0.045)  0%, transparent 100%)," +
+          "radial-gradient(ellipse 26% 14% at 82% 55%, rgba(180,60,40,0.035)  0%, transparent 100%)," +
+          "radial-gradient(ellipse 24% 12% at 48% 78%, rgba(0,160,140,0.030)  0%, transparent 100%)",
       }} />
 
       {/* ── Galaxy dust — static, no parallax, deepest background ───────────── */}
@@ -444,7 +483,6 @@ export function AmbientJourney() {
         <PlanetAnchor x={satX} y={satY} scale={satSc} opacity={satOp} rotate={satRt}
           className="h-[22rem] w-[22rem] md:h-[42rem] md:w-[42rem]">
           <SaturnPlanet />
-          <div className="planet-glow planet-glow-saturn" />
         </PlanetAnchor>
       </>}
 
@@ -587,6 +625,6 @@ export function AmbientJourney() {
 
       {/* ── Vignette ──────────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_44%,transparent_28%,rgba(3,7,18,.50)_65%,rgba(3,7,18,.88)_100%)]" />
-    </div>
+    </motion.div>
   );
 }

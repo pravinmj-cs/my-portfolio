@@ -17,6 +17,8 @@ import {
   packgineMetrics,
 } from "@/lib/content";
 import { AmbientJourney } from "./AmbientJourney";
+import { LaunchPreloader } from "./LaunchPreloader";
+import { useClickShockwave, Magnetic, TiltCard } from "./CursorFx";
 import { Section } from "./Section";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +32,10 @@ function CountUp({ value, className }: { value: string; className?: string }) {
     if (!inView) return;
     // Match leading number: "300+" → [300, "+"], "3 yrs" → [3, " yrs"]
     const m = value.match(/^(\d+)(.*)/);
-    if (!m) return; // e.g. "4s → 255ms" — just show as-is
+    if (!m) {
+      // Non-numeric: fade in
+      return; // handled by ref span below with opacity transition
+    }
     const target = parseInt(m[1]);
     const suffix = m[2];
     const duration = 1100;
@@ -43,6 +48,12 @@ function CountUp({ value, className }: { value: string; className?: string }) {
     };
     requestAnimationFrame(tick);
   }, [inView, value]);
+
+  // Check if value is non-numeric (no leading number match)
+  const isNonNumeric = !value.match(/^(\d+)(.*)/);
+  if (isNonNumeric) {
+    return <span ref={ref} className={className} style={{ opacity: inView ? 1 : 0, transition: "opacity 0.6s ease" }}>{value}</span>;
+  }
 
   return <span ref={ref} className={className}>{display}</span>;
 }
@@ -193,7 +204,6 @@ function CometProgress() {
   const spring = useSpring(scrollYProgress, { stiffness: 130, damping: 32 });
   const pct = useTransform(spring, [0, 1], [0, 100]);
   const headLeft = useMotionTemplate`${pct}%`;
-
   return (
     <div
       className="fixed left-0 top-0 z-[70] w-full pointer-events-none"
@@ -263,6 +273,15 @@ function CometProgress() {
         </svg>
       </motion.div>
     </div>
+  );
+}
+
+// ─── Pulsing planet dot ───────────────────────────────────────────────────────
+function PulsingDot({ color }: { color: string }) {
+  return (
+    <span className={cn("relative inline-flex h-2 w-2 shrink-0 rounded-full", color)}
+      style={{ boxShadow: "0 0 0 0 currentColor", animation: "dot-pulse 2.5s ease-out infinite" }}
+    />
   );
 }
 
@@ -350,32 +369,37 @@ function Hero() {
             transition={{ duration: 0.5, delay: 0.78, ease: "easeOut" }}
             className="mt-6 flex flex-wrap gap-3"
           >
-            <a
-              href="#packgine"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-abyss transition hover:scale-[1.02]"
-            >
-              Explore the journey <MoveDown size={16} />
-            </a>
-            <a
-              href="https://github.com/pravinmj-cs/"
-              className="glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/14"
-            >
-              <Github size={16} /> GitHub
-            </a>
-            <a
-              href="https://linkedin.com/in/pravin-mj-6314ab197/"
-              className="glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/14"
-            >
-              <Linkedin size={16} /> LinkedIn
-            </a>
+            <Magnetic strength={0.35}>
+              <a
+                href="#packgine"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-abyss transition hover:scale-[1.02]"
+              >
+                Explore the journey <MoveDown size={16} />
+              </a>
+            </Magnetic>
+            <Magnetic strength={0.30}>
+              <a
+                href="https://github.com/pravinmj-cs/"
+                className="glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/14"
+              >
+                <Github size={16} /> GitHub
+              </a>
+            </Magnetic>
+            <Magnetic strength={0.30}>
+              <a
+                href="https://linkedin.com/in/pravin-mj-6314ab197/"
+                className="glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/14"
+              >
+                <Linkedin size={16} /> LinkedIn
+              </a>
+            </Magnetic>
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ scale: 0.97 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.15 }}
-          className="glass relative overflow-hidden rounded-[2rem] p-5"
+        <TiltCard
+          className="glass relative overflow-hidden rounded-[2rem] p-5 hidden lg:block"
+          style={{ opacity: 1 }}
+          maxTilt={5}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(248,225,108,.22),transparent_28%),radial-gradient(circle_at_85%_18%,rgba(0,209,255,.22),transparent_25%)]" />
           <div className="relative min-h-[22rem] rounded-[1.5rem] border border-white/10 bg-abyss/40 p-6">
@@ -388,7 +412,7 @@ function Hero() {
                 { dot: "bg-yellow-200", label: "Saturn",  desc: "Packgine · Deep-space mission"       },
               ].map(({ dot, label, desc }) => (
                 <div key={label} className="flex items-center gap-3">
-                  <span className={cn("h-2 w-2 shrink-0 rounded-full", dot)} />
+                  <PulsingDot color={dot} />
                   <span className="font-display text-sm font-semibold text-white">{label}</span>
                   <span className="text-xs text-starlight/55">{desc}</span>
                 </div>
@@ -404,7 +428,7 @@ function Hero() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </TiltCard>
       </div>
     </section>
   );
@@ -416,7 +440,7 @@ function MetricCard({ value, label, icon: Icon }: (typeof happyFoxMetrics)[numbe
     <div className="glass rounded-2xl p-5">
       <Icon className="text-reef" size={22} />
       <CountUp value={value} className="mt-5 font-display text-4xl font-semibold text-white" />
-      <p className="mt-1 text-sm text-starlight/65">{label}</p>
+      <p className="mt-1 text-sm text-starlight/55">{label}</p>
     </div>
   );
 }
@@ -464,7 +488,7 @@ function Resileo() {
                 className="rounded-2xl border border-white/10 bg-abyss/30 p-4 backdrop-blur"
               >
                 <p className="font-display text-base font-semibold text-white">{sub.title}</p>
-                <p className="mt-2 text-sm leading-6 text-starlight/65">{sub.body}</p>
+                <p className="mt-2 text-sm leading-6 text-starlight/55">{sub.body}</p>
               </motion.div>
             ))}
           </div>
@@ -533,7 +557,7 @@ function Niyata() {
                   className="rounded-2xl border border-white/10 bg-abyss/30 p-4 backdrop-blur"
                 >
                   <p className="font-display text-base font-semibold text-white">{sub.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-starlight/65">{sub.body}</p>
+                  <p className="mt-2 text-sm leading-6 text-starlight/55">{sub.body}</p>
                 </motion.div>
               ))}
             </div>
@@ -603,17 +627,19 @@ function HappyFox() {
 
       <div className="mt-5 grid gap-4">
         {happyFoxMilestones.map((item) => (
-          <motion.article
+          <motion.div
             key={item.title}
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-70px" }}
-            className="glass rounded-2xl p-5"
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
-            <item.icon className="text-sunlit" size={22} />
-            <h3 className="mt-4 font-display text-xl font-semibold text-white">{item.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-starlight/68">{item.body}</p>
-          </motion.article>
+            <TiltCard className="glass rounded-2xl p-5 cursor-default block">
+              <item.icon className="text-sunlit" size={22} />
+              <h3 className="mt-4 font-display text-xl font-semibold text-white">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-starlight/68">{item.body}</p>
+            </TiltCard>
+          </motion.div>
         ))}
       </div>
     </Section>
@@ -1447,19 +1473,19 @@ function Creativity() {
                   While engineering sharpened my systems thinking,{" "}
                   <span className="text-white font-medium">creativity unlocked how I express them.</span>
                 </p>
-                <p className="text-sm leading-6 text-starlight/65">
+                <p className="text-sm leading-6 text-starlight/55">
                   At <span style={{ color: "#FF6600" }}>HappyFox</span>, I was given a small opportunity to explore design through the PyCon event team.
                   I didn&apos;t treat it as a side task. I treated it as a new dimension — and squeezed every ounce
                   of creative energy out of it. This wasn&apos;t a blog post about it.{" "}
                   <span className="text-white font-medium">It was an identity unlock.</span>
                 </p>
-                <p className="text-sm leading-6 text-starlight/65">
+                <p className="text-sm leading-6 text-starlight/55">
                   That thirst led further: I designed my entire{" "}
                   <span className="text-white font-medium">wedding invitation</span> out of love for my wife.
                   Then the <span className="text-white font-medium">entire Packgine product UI</span> from scratch.
                   Then this portfolio — a space journey told entirely in code.
                 </p>
-                <p className="text-sm leading-6 text-starlight/65">
+                <p className="text-sm leading-6 text-starlight/55">
                   <span className="text-reef font-medium">Pradeep (CTO)</span> and{" "}
                   <span className="text-reef font-medium">Suresh (EM)</span> gave me the room.
                   The culture and team gave me the fuel to run with it.
@@ -1558,7 +1584,7 @@ function Creativity() {
                       </p>
                       <h3 className="mt-2 font-display text-xl font-semibold text-white">{work.title}</h3>
                       <p className="mt-0.5 text-xs font-medium text-reef/80">{work.sub}</p>
-                      <p className="mt-3 text-xs leading-5 text-starlight/62">{work.body}</p>
+                      <p className="mt-3 text-xs leading-5 text-starlight/55">{work.body}</p>
                     </div>
                   </div>
                 </motion.article>
@@ -1603,6 +1629,7 @@ function Packgine() {
     <Section
       id="packgine"
       eyebrow="Saturn · Deep-space mission"
+      eyebrowClassName="text-sunlit"
       title="Packgine: the system I was always building towards."
       copy="Everything before this was training. This is where it compounds. Not a dashboard. Not a tool. A system of record for packaging — turning fragmented, manual, reactive workflows into structured, decision-ready outputs."
     >
@@ -1616,18 +1643,22 @@ function Packgine() {
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {packgineCapabilities.map((item) => (
+        {packgineCapabilities.map((item, i) => (
           <motion.div
             key={item.title}
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -2, borderColor: "rgba(248,225,108,0.40)" }}
             viewport={{ once: true }}
-            className="glass flex items-center gap-3 rounded-2xl p-4"
+            transition={{ duration: 0.4, delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
+            className="glass flex items-center gap-3 rounded-2xl p-4 cursor-default"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-reef">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+              style={{ background: "rgba(248,225,108,0.10)", color: "#F8E16C" }}>
               <item.icon size={18} />
             </span>
-            <p className="text-sm font-medium leading-5 text-white/86">{item.title}</p>
+            <p className="text-sm font-medium leading-5 text-white/90">{item.title}</p>
           </motion.div>
         ))}
       </div>
@@ -1636,9 +1667,10 @@ function Packgine() {
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mt-5 rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-reef/6 to-transparent p-6"
+        className="mt-5 rounded-3xl p-6"
+        style={{ border: "1px solid rgba(210,175,90,0.18)", background: "linear-gradient(135deg, rgba(210,175,90,0.08), rgba(160,120,40,0.05), transparent)" }}
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-violet-400">The shift</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sunlit">The shift</p>
         <p className="mt-3 text-lg font-semibold text-white">
           I stopped solving problems. I started designing ecosystems.
         </p>
@@ -1662,33 +1694,56 @@ function Beyond() {
         <p className="font-display text-sm font-semibold uppercase tracking-[0.32em] text-sunlit">
           Portal · Beyond
         </p>
-        <h2 className="mt-5 font-display text-5xl font-semibold leading-[0.94] text-white md:text-7xl">
+
+        <h2 className="mt-8 font-display text-5xl font-semibold leading-[0.94] text-white md:text-7xl">
           Not optimising for roles.<br className="hidden md:block" /> Optimising for leverage.
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-starlight/74">
+        <motion.p
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-starlight/74"
+        >
           The ability to take complexity, ambiguity, and messy real-world systems — and turn them into
           products that scale. That&apos;s what every phase of this journey was building toward.
-        </p>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-starlight/52">
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+          className="mx-auto mt-4 max-w-xl text-base leading-7 text-starlight/52"
+        >
           From Earth → Mars → Jupiter → Saturn. This was never about changing jobs.
           It was about increasing depth, clarity, and leverage.
-        </p>
-        <p className="mt-6 text-sm font-medium text-starlight/42 tracking-wide">
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.45, delay: 0.2, ease: "easeOut" }}
+          className="mt-6 text-sm font-medium text-starlight/42 tracking-wide"
+        >
           The spacecraft is moving. The map is still being drawn.
-        </p>
+        </motion.p>
         <div className="mt-9 flex flex-wrap justify-center gap-3">
-          <a
-            href="mailto:pravinmj.cs@gmail.com"
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-abyss"
-          >
-            Start a conversation <ArrowUpRight size={16} />
-          </a>
-          <a
-            href="https://linkedin.com/in/pravin-mj-6314ab197/"
-            className="glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white"
-          >
-            <Linkedin size={16} /> LinkedIn
-          </a>
+          <Magnetic strength={0.35}>
+            <a
+              href="mailto:pravinmj.cs@gmail.com"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-abyss"
+            >
+              Start a conversation <ArrowUpRight size={16} />
+            </a>
+          </Magnetic>
+          <Magnetic strength={0.30}>
+            <a
+              href="https://linkedin.com/in/pravin-mj-6314ab197/"
+              className="glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white"
+            >
+              <Linkedin size={16} /> LinkedIn
+            </a>
+          </Magnetic>
         </div>
       </div>
     </section>
@@ -1697,19 +1752,40 @@ function Beyond() {
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export function CinematicPortfolio() {
+  const [mounted,  setMounted]  = useState(false);
+  const [launched, setLaunched] = useState(false);
+
+  useClickShockwave();
+
+  // Only render preloader client-side — avoids any SSR/hydration mismatch
+  useEffect(() => { setMounted(true); }, []);
+
   return (
-    <main className="relative min-h-screen overflow-hidden bg-abyss">
-      <CometProgress />
-      <AmbientJourney />
-      <TopNav />
-      <Hero />
-      <Resileo />
-      <Niyata />
-      <HappyFox />
-      <Creativity />
-      <Packgine />
-      <Beyond />
-      <div className="noise" />
-    </main>
+    <>
+      <AnimatePresence>
+        {mounted && !launched && (
+          <LaunchPreloader key="preloader" onComplete={() => setLaunched(true)} />
+        )}
+      </AnimatePresence>
+      <main
+        className="relative min-h-screen overflow-hidden bg-abyss"
+        style={{
+          opacity: launched ? 1 : 0,
+          transition: launched ? "opacity 0.6s ease" : "none",
+        }}
+      >
+        <CometProgress />
+        <AmbientJourney />
+        <TopNav />
+        <Hero />
+        <Resileo />
+        <Niyata />
+        <HappyFox />
+        <Creativity />
+        <Packgine />
+        <Beyond />
+        <div className="noise" />
+      </main>
+    </>
   );
 }

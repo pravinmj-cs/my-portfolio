@@ -70,55 +70,65 @@ body {
   animation-iteration-count: infinite;
 }
 
-/* Galaxy dust — static, no twinkle, just density */
+/* Galaxy dust — static, no twinkle, pure depth layer */
 .star-galaxy {
-  opacity: 0.18;
+  opacity: 0.22;
   transform: translateZ(0);
 }
 
-.star-far  { opacity: 0.26; }
+.star-far  { opacity: 0.30; }
+
 .star-mid  {
-  opacity: 0.44;
-  box-shadow: 0 0 4px 1px rgba(200, 228, 255, 0.40);
-}
-.star-near {
-  opacity: 0.72;
-  box-shadow: 0 0 6px 2px rgba(210, 235, 255, 0.55),
-              0 0 14px 4px rgba(190, 220, 255, 0.22);
+  opacity: 0.50;
 }
 
-/* Colour tints — spectral types */
-.star-blue   { background: #b8d8ff !important; }   /* O/B type — blue-white    */
-.star-warm   { background: #fff4d0 !important; }   /* F/G type — yellow-white  */
-.star-cool   { background: #e8f4ff !important; }   /* A type   — pure white    */
-.star-orange { background: #ffd090 !important; }   /* K type   — orange        */
-.star-red    { background: #ffb080 !important; }   /* M type   — red-orange    */
+/* Near stars — coloured multi-ring bloom per spectral type */
+.star-near { opacity: 0.80; }
 
-/* Prominent bright star — strong glow + diffraction spikes via pseudo-elements */
+/* Spectral colours — saturated, photorealistic */
+.star-blue   { background: #a8d4ff !important; }   /* O/B — vivid blue-white   */
+.star-warm   { background: #ffe4a0 !important; }   /* F/G — golden yellow      */
+.star-cool   { background: #f0f8ff !important; }   /* A   — crisp white        */
+.star-orange { background: #ffaa44 !important; }   /* K   — deep amber-orange  */
+.star-red    { background: #ff7755 !important; }   /* M   — fiery red-orange   */
+
+/* Mid glow — very faint, just softens the dot edge */
+.star-mid { box-shadow: 0 0 2px 0px rgba(200,220,255,0.18); }
+
+/* Near stars — small tight glow, colour-tinted but not neon */
+.star-near.star-blue   { box-shadow: 0 0 3px 1px rgba(140,190,255,0.35), 0 0 8px 2px rgba(100,160,255,0.12); }
+.star-near.star-warm   { box-shadow: 0 0 3px 1px rgba(255,220,130,0.35), 0 0 8px 2px rgba(255,190,80,0.12);  }
+.star-near.star-orange { box-shadow: 0 0 3px 1px rgba(255,170,80,0.35),  0 0 8px 2px rgba(220,120,30,0.12); }
+.star-near.star-red    { box-shadow: 0 0 3px 1px rgba(255,130,90,0.32),  0 0 8px 2px rgba(200,80,50,0.10);  }
+.star-near.star-cool,
+.star-near             { box-shadow: 0 0 3px 1px rgba(210,230,255,0.30), 0 0 8px 2px rgba(180,210,255,0.10); }
+
+/* Prominent bright star — tight core, modest halo, subtle spike */
 .star-bright {
   opacity: 0.92;
   box-shadow:
-    0 0  4px 2px  rgba(255, 255, 255, 0.95),
-    0 0 12px 5px  rgba(210, 235, 255, 0.60),
-    0 0 28px 10px rgba(180, 220, 255, 0.25);
+    0 0  3px 1px  rgba(255, 255, 255, 0.95),
+    0 0  7px 2px  rgba(210, 230, 255, 0.40),
+    0 0 14px 4px  rgba(170, 210, 255, 0.14);
   animation-name: star-bright-pulse;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   position: relative;
   overflow: visible;
 }
-/* Horizontal spike */
+/* Horizontal spike — fine and short */
 .star-bright::before {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 36px; height: 1px;
+  width: 38px; height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(255,255,255,0.35) 30%,
-    rgba(255,255,255,0.75) 50%,
-    rgba(255,255,255,0.35) 70%,
+    rgba(255,255,255,0.12) 25%,
+    rgba(255,255,255,0.55) 48%,
+    rgba(255,255,255,0.55) 52%,
+    rgba(255,255,255,0.12) 75%,
     transparent 100%);
   pointer-events: none;
 }
@@ -128,19 +138,40 @@ body {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%) rotate(90deg);
-  width: 36px; height: 1px;
+  width: 38px; height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(255,255,255,0.30) 30%,
-    rgba(255,255,255,0.70) 50%,
-    rgba(255,255,255,0.30) 70%,
+    rgba(255,255,255,0.10) 25%,
+    rgba(255,255,255,0.45) 48%,
+    rgba(255,255,255,0.45) 52%,
+    rgba(255,255,255,0.10) 75%,
     transparent 100%);
   pointer-events: none;
 }
 
+/* Coloured bright stars — tinted glow, still restrained */
+.star-bright.star-blue {
+  box-shadow:
+    0 0  3px 1px rgba(255, 255, 255, 0.95),
+    0 0  7px 2px rgba(160, 210, 255, 0.45),
+    0 0 16px 5px rgba(100, 170, 255, 0.14);
+}
+.star-bright.star-orange {
+  box-shadow:
+    0 0  3px 1px rgba(255, 240, 210, 0.95),
+    0 0  7px 2px rgba(255, 180, 80,  0.40),
+    0 0 16px 5px rgba(200, 110, 30,  0.12);
+}
+.star-bright.star-red {
+  box-shadow:
+    0 0  3px 1px rgba(255, 220, 200, 0.95),
+    0 0  7px 2px rgba(255, 120, 80,  0.38),
+    0 0 16px 5px rgba(180,  60, 30,  0.11);
+}
+
 @keyframes star-bright-pulse {
-  0%, 100% { opacity: 0.82; transform: translateZ(0) scale(1);    }
-  50%       { opacity: 1.00; transform: translateZ(0) scale(1.08); }
+  0%, 100% { opacity: 0.88; transform: translateZ(0) scale(1);    }
+  50%       { opacity: 1.00; transform: translateZ(0) scale(1.10); }
 }
 
 /* ── Warp transit layer ──────────────────────────────────────────────────── */
@@ -213,12 +244,13 @@ body {
 .planet-glow-saturn {
   background: radial-gradient(
     circle at center,
-    transparent 46%,
-    rgba(220, 185, 95, 0.09) 54%,
-    rgba(200, 160, 75, 0.04) 64%,
-    transparent 70%
+    transparent 48%,
+    rgba(220, 185, 95, 0.07) 54%,
+    rgba(200, 160, 75, 0.03) 62%,
+    transparent 66%
   );
-  filter: blur(4px);
+  filter: blur(3px);
+  overflow: hidden;
 }
 
 /* ── Shooting star — SVG-based, see AmbientJourney.tsx ── */
@@ -369,6 +401,19 @@ body {
 
 @keyframes orbit-sweep {
   to { --orbit-angle: 360deg; }
+}
+
+/* Pulsing dot — box-shadow ripple, no transform, no new layers */
+@keyframes dot-pulse {
+  0%   { box-shadow: 0 0 0 0px rgba(255,255,255,0.55); }
+  70%  { box-shadow: 0 0 0 5px rgba(255,255,255,0);    }
+  100% { box-shadow: 0 0 0 0px rgba(255,255,255,0);    }
+}
+
+/* ── Click shockwave rings ───────────────────────────────────────────────── */
+@keyframes shockwave {
+  0%   { transform: scale(1);  opacity: 1;   }
+  100% { transform: scale(18); opacity: 0;   }
 }
 
 @media (prefers-reduced-motion: reduce) {
