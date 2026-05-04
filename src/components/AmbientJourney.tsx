@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { CanvasStarField } from "./CanvasStarField";
 import { useEffect, useState } from "react";
 import { EarthPlanet, JupiterPlanet, MarsPlanet, SaturnPlanet } from "./CSSPlanets";
 
@@ -190,21 +191,6 @@ export function AmbientJourney() {
   const nebulaOpacity = useTransform(s, [0, 0.5, 1], [0.20, 0.52, 1.0]);
   const sunRayOpacity = useTransform(s, [0, 0.3, 0.8, 1], [0.14, 0.30, 0.50, 0.18]);
 
-  // ── Star parallax — rocket moves upper-right, stars stream lower-left ────────
-  // Direction: Y positive (down) + X negative (left) = opposite of rocket trajectory
-  // Scale: zoom-through-space — near layers expand much faster than far
-  const galaxyScale = useTransform(s, [0, 1], [1.00, 1.04]);
-  const galaxyY     = useTransform(s, [0, 1], ["0%",  "2%"]);
-  const galaxyX     = useTransform(s, [0, 1], ["0%", "-1%"]);
-  const farScale    = useTransform(s, [0, 1], [1.00, 1.09]);
-  const farY        = useTransform(s, [0, 1], ["0%",  "5%"]);
-  const farX        = useTransform(s, [0, 1], ["0%", "-2.5%"]);
-  const midScale    = useTransform(s, [0, 1], [1.00, 1.18]);
-  const midY        = useTransform(s, [0, 1], ["0%",  "11%"]);
-  const midX        = useTransform(s, [0, 1], ["0%", "-5%"]);
-  const nearScale   = useTransform(s, [0, 1], [1.00, 1.35]);
-  const nearY       = useTransform(s, [0, 1], ["0%",  "20%"]);
-  const nearX       = useTransform(s, [0, 1], ["0%", "-10%"]);
 
   // ── Warp flash between planets ──────────────────────────────────────────────
   const warpOpacity = useTransform(
@@ -361,43 +347,11 @@ export function AmbientJourney() {
           "radial-gradient(ellipse 24% 12% at 48% 78%, rgba(0,160,140,0.030)  0%, transparent 100%)",
       }} />
 
-      {/* ── Galaxy dust — slowest parallax layer, deepest background ──────────── */}
-      <motion.div className="absolute inset-0" style={{ scale: galaxyScale, y: galaxyY, x: galaxyX, willChange: "transform" }}>
-        {galaxyStars.map(st => (
-          <span key={st.id}
-            className={`star-galaxy absolute rounded-full bg-white ${st.col}`}
-            style={{ left: st.left, top: st.top,
-              width: st.size, height: st.size }} />
-        ))}
-      </motion.div>
+      {/* ── Canvas star field — 3D perspective, scroll-driven, infinite depth ──── */}
+      <CanvasStarField scrollProgress={s} />
 
-      {/* ── Far stars ────────────────────────────────────────────────────────── */}
-      <motion.div className="absolute inset-0" style={{ scale: farScale, y: farY, x: farX, willChange: "transform" }}>
-        {farStars.map(st => (
-          <span key={st.id}
-            className={`star-dot star-far absolute rounded-full bg-white ${st.col}`}
-            style={{ left: st.left, top: st.top, width: st.size, height: st.size,
-              animationDelay: st.delay, animationDuration: st.dur }} />
-        ))}
-      </motion.div>
-
-      {/* ── Mid stars ────────────────────────────────────────────────────────── */}
-      <motion.div className="absolute inset-0" style={{ scale: midScale, y: midY, x: midX, willChange: "transform" }}>
-        {midStars.map(st => (
-          <span key={st.id}
-            className={`star-dot star-mid absolute rounded-full bg-white ${st.col}`}
-            style={{ left: st.left, top: st.top, width: st.size, height: st.size,
-              animationDelay: st.delay, animationDuration: st.dur }} />
-        ))}
-      </motion.div>
-
-      {/* ── Near stars + meteors (fastest parallax layer) ────────────────────── */}
-      <motion.div className="absolute inset-0" style={{ scale: nearScale, y: nearY, x: nearX, willChange: "transform" }}>
-        {nearStars.map(st => (
-          <span key={st.id} className={`star-dot star-near absolute rounded-full bg-white ${st.col}`}
-            style={{ left: st.left, top: st.top, width: st.size, height: st.size,
-              animationDelay: st.delay, animationDuration: st.dur }} />
-        ))}
+      {/* ── Shooting stars (kept as SVG for the warm-head + long-tail detail) ── */}
+      <div className="absolute inset-0 pointer-events-none">
         {shootingStars.map(m => {
           // SVG shooting star: bright warm head + long tapered tail.
           // Rotation is baked into the keyframe (rotate(42deg) translateX) so
@@ -462,9 +416,9 @@ export function AmbientJourney() {
             </span>
           );
         })}
-      </motion.div>
+      </div>
 
-      {/* ── Bright notable stars — fixed, no parallax, diffraction spikes ────── */}
+      {/* ── Bright notable stars — fixed, diffraction spikes ─────────────────── */}
       <div className="absolute inset-0">
         {brightStars.map(st => (
           <span key={st.id}
@@ -511,6 +465,8 @@ export function AmbientJourney() {
         className="absolute"
         style={{ x: rocketX, y: rocketY, rotate: rocketRot, opacity: rocketOp, width: 64, height: 180, zIndex: 20 }}
       >
+        {/* Drift wrapper — gentle float so rocket isn't rigidly locked to path */}
+        <div style={{ animation: "rocket-drift 3.4s ease-in-out infinite", willChange: "transform" }}>
         <svg viewBox="0 0 64 180" width="64" height="180" style={{ overflow: "visible" }}>
           <defs>
             {/* Hull — light silver with left-lit shading */}
@@ -571,17 +527,20 @@ export function AmbientJourney() {
             </filter>
           </defs>
 
-          {/* ── Exhaust bloom (widest, most transparent — painted first) ── */}
+          {/* ── Exhaust bloom — slow wide pulse ── */}
           <ellipse cx="32" cy="138" rx="22" ry="42"
-            fill="url(#r-bloom)" filter="url(#r-f-bloom)" />
+            fill="url(#r-bloom)" filter="url(#r-f-bloom)"
+            style={{ transformBox: "fill-box", transformOrigin: "50% 0%", animation: "bloom-pulse 0.38s ease-in-out infinite" }} />
 
-          {/* ── Main exhaust plume ── */}
+          {/* ── Main exhaust plume — rapid flicker ── */}
           <ellipse cx="32" cy="132" rx="8" ry="34"
-            fill="url(#r-exhaust)" filter="url(#r-f-exhaust)" />
+            fill="url(#r-exhaust)" filter="url(#r-f-exhaust)"
+            style={{ transformBox: "fill-box", transformOrigin: "50% 0%", animation: "flame-flicker 0.18s ease-in-out infinite" }} />
 
-          {/* ── Bright exhaust core ── */}
+          {/* ── Bright exhaust core — offset flicker ── */}
           <ellipse cx="32" cy="120" rx="3.5" ry="12"
-            fill="#fff8e8" fillOpacity="0.95" />
+            fill="#fff8e8" fillOpacity="0.95"
+            style={{ transformBox: "fill-box", transformOrigin: "50% 0%", animation: "flame-flicker 0.22s ease-in-out infinite reverse" }} />
 
           {/* ── Wings (delta swept) — painted behind fuselage ── */}
           <path d="M 26,90 L 2,118 L 25,102 Z" fill="url(#r-wing)" />
@@ -641,6 +600,7 @@ export function AmbientJourney() {
           <ellipse cx="32" cy="118" rx="11" ry="7"
             fill="url(#r-core)" filter="url(#r-f-core)" />
         </svg>
+        </div>
       </motion.div>}
 
       {/* ── Vignette ──────────────────────────────────────────────────────────── */}

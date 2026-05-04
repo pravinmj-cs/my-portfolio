@@ -129,34 +129,32 @@ export function JupiterPlanet({ className }: { className?: string }) {
         `,
       }} />
 
-      {/* Bands — many layers for realism */}
+      {/* Bands — softened, atmospheric streaks not sharp stripes */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%",
+        filter: "blur(2.5px)",
         background: `
           repeating-linear-gradient(
             180deg,
             transparent                     0%,
-            rgba(168,88,38,0.42)            3.8%,
-            rgba(215,158,78,0.30)           7.6%,
-            transparent                     11.4%,
-            rgba(140,68,30,0.38)            16.2%,
-            rgba(205,142,68,0.26)           20.0%,
-            transparent                     23.8%,
-            rgba(155,78,36,0.36)            28.8%,
-            rgba(210,148,72,0.24)           32.6%,
-            transparent                     36.4%,
-            rgba(130,62,28,0.40)            41.4%,
-            rgba(195,132,62,0.28)           45.2%,
-            transparent                     49.0%,
-            rgba(148,72,34,0.34)            54.0%,
-            rgba(206,142,68,0.22)           57.8%,
-            transparent                     61.6%,
-            rgba(138,66,30,0.36)            66.4%,
-            rgba(188,122,58,0.24)           70.2%,
-            transparent                     74.0%,
-            rgba(128,58,26,0.38)            79.0%,
-            rgba(182,118,56,0.20)           82.8%,
-            transparent                     86.6%
+            rgba(168,88,38,0.18)            4.5%,
+            rgba(215,158,78,0.12)           9.0%,
+            transparent                     13.5%,
+            rgba(140,68,30,0.16)            18.5%,
+            rgba(205,142,68,0.10)           23.0%,
+            transparent                     27.5%,
+            rgba(155,78,36,0.15)            32.5%,
+            rgba(210,148,72,0.09)           37.0%,
+            transparent                     41.5%,
+            rgba(130,62,28,0.17)            46.5%,
+            rgba(195,132,62,0.11)           51.0%,
+            transparent                     55.5%,
+            rgba(148,72,34,0.14)            60.5%,
+            rgba(206,142,68,0.08)           65.0%,
+            transparent                     69.5%,
+            rgba(138,66,30,0.15)            74.5%,
+            rgba(182,118,56,0.09)           79.0%,
+            transparent                     83.5%
           )
         `,
       }} />

@@ -201,19 +201,19 @@ export const creativeCards = [
 // ── Packgine ───────────────────────────────────────────────────────────────────
 
 export const packgineCapabilities = [
-  { title: "Multi-tenant SaaS architecture",           icon: Layers3      },
-  { title: "Packaging system of record",               icon: FileSearch   },
-  { title: "LCA and recyclability intelligence",       icon: BrainCircuit },
-  { title: "EPR, PPWR, and PPT compliance bundles",    icon: ShieldCheck  },
-  { title: "Digital Product Passport",                 icon: BadgeCheck   },
-  { title: "Agentic AI workflows",                     icon: Sparkles     },
-  { title: "Smart Drafts",                             icon: PencilRuler  },
-  { title: "Compliance insights agent",                icon: Telescope    },
-  { title: "Impact optimisation and scenario planning",icon: Rocket       },
+  { title: "Multi-tenant SaaS architecture",           icon: Layers3,      body: "Isolation, scaling, and evolution per customer — platform habits, not single-tenant shortcuts."                                            },
+  { title: "Packaging system of record",               icon: FileSearch,   body: "One place for structure, versions, and truth across teams — fewer contradictions in audits and launches."                                   },
+  { title: "LCA and recyclability intelligence",       icon: BrainCircuit, body: "Environmental logic tied to materials and packaging decisions — not generic 'green scores'."                                              },
+  { title: "Regulatory Compliance (PPWR, EPR)",          icon: ShieldCheck,  body: "Named regimes and rules packaged for the product — fee logic, evaluations, and export-ready artifacts."                             },
+  { title: "Digital Product Passport",                 icon: BadgeCheck,   body: "Passport-style traceability and evidence built on durable product and packaging records."                                                   },
+  { title: "Agentic AI workflows",                     icon: Sparkles,     body: "Agents that orchestrate steps across data and policies, with guardrails fit for regulated contexts."                                         },
+  { title: "Smart Drafts",                             icon: PencilRuler,  body: "Turns unstructured supplier data into structured packaging BOM entries — automatically."                                                                        },
+  { title: "Compliance insights agent",                icon: Telescope,    body: "Turns compliance gaps into plain language — faster answers for legal and sustainability teams."                                       },
+  { title: "Impact & Scenario Planning",               icon: Rocket,       body: "Compare paths before you commit — less rework when rules, mix, or markets shift."                                                            },
 ];
 
 export const packgineMetrics = [
   { value: "390+",   label: "Backend APIs"    },
-  { value: "7+",     label: "Agent workflows" },
+  { value: "10+",    label: "Agentic workflows" },
   { value: "18+",    label: "Portfolio widgets"},
 ];

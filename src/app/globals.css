@@ -44,7 +44,6 @@ body {
     linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
     var(--glass);
   box-shadow: 0 22px 64px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(4px);
 }
 
 .ambient-stage {
@@ -298,6 +297,26 @@ body {
 @keyframes grs-swirl {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+/* ── Rocket animations ───────────────────────────────────────────────────── */
+@keyframes flame-flicker {
+  0%   { transform: scaleX(1.00) scaleY(1.00); opacity: 1.00; }
+  20%  { transform: scaleX(0.82) scaleY(1.14); opacity: 0.86; }
+  45%  { transform: scaleX(1.10) scaleY(0.90); opacity: 0.94; }
+  70%  { transform: scaleX(0.88) scaleY(1.08); opacity: 0.88; }
+  100% { transform: scaleX(1.00) scaleY(1.00); opacity: 1.00; }
+}
+@keyframes bloom-pulse {
+  0%   { transform: scale(1.00); opacity: 0.90; }
+  50%  { transform: scale(1.22); opacity: 0.58; }
+  100% { transform: scale(1.00); opacity: 0.90; }
+}
+@keyframes rocket-drift {
+  0%   { transform: translateY(0px)    rotate(-0.4deg); }
+  28%  { transform: translateY(-2.5px) rotate( 0.3deg); }
+  60%  { transform: translateY( 1.8px) rotate(-0.2deg); }
+  100% { transform: translateY(0px)    rotate(-0.4deg); }
 }
 
 @keyframes planet-breathe {

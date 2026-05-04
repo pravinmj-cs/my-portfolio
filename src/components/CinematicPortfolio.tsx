@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { AnimatePresence, motion, useInView, useMotionTemplate, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowUpRight, Github, GraduationCap, Heart, Linkedin, Mail, Menu, MoveDown, Paintbrush, Rocket, Sparkles, Telescope, X } from "lucide-react";
@@ -285,6 +286,132 @@ function PulsingDot({ color }: { color: string }) {
   );
 }
 
+// ─── Packgine capability card — space scanner reveal on hover ─────────────────
+function CapabilityCard({ item, i }: { item: { title: string; icon: React.ElementType; body: string }; i: number }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <motion.div
+      className="relative overflow-hidden glass rounded-2xl cursor-default"
+      style={{ border: "1px solid rgba(255,255,255,0.08)", minHeight: "68px" }}
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* border glow on hover */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            key="glow-border"
+            className="absolute inset-0 rounded-2xl pointer-events-none z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ boxShadow: "inset 0 0 0 1px rgba(248,225,108,0.55), 0 0 18px rgba(248,225,108,0.12)" }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* scan line — sweeps top → bottom */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            key="scan"
+            className="absolute left-0 right-0 h-[1px] z-20 pointer-events-none"
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, rgba(248,225,108,0.15) 15%, #F8E16C 50%, rgba(248,225,108,0.15) 85%, transparent 100%)",
+              boxShadow: "0 0 10px 3px rgba(248,225,108,0.35)",
+            }}
+            initial={{ top: "0%" }}
+            animate={{ top: "105%" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.38, ease: "linear" }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* default state: icon + title */}
+      <motion.div
+        className="flex items-center gap-3 p-4"
+        animate={{ opacity: hovered ? 0 : 1, filter: hovered ? "blur(2px)" : "blur(0px)" }}
+        transition={{ duration: 0.18 }}
+      >
+        <span
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+          style={{ background: "rgba(248,225,108,0.10)", color: "#F8E16C" }}
+        >
+          <item.icon size={18} />
+        </span>
+        <p className="text-sm font-medium leading-5 text-white/90">{item.title}</p>
+      </motion.div>
+
+      {/* reveal state: label + body — fades in after scan completes */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            key="reveal"
+            className="absolute inset-0 flex flex-col justify-center px-4 py-3 gap-1.5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, delay: 0.32 }}
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block h-1 w-1 rounded-full bg-sunlit" style={{ boxShadow: "0 0 5px 1px #F8E16C" }} />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#F8E16C" }}>{item.title}</p>
+            </div>
+            <p className="text-xs leading-[1.6] text-white/68">{item.body}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ─── Mission row — planet dot scales + role text glows in planet colour on hover
+function MissionRow({ grad, glow, label, role, active }: {
+  grad: string; glow: string; label: string; role: string; active: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      className="flex items-center gap-3 py-2.5 pl-0.5 cursor-default"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div
+        className={`relative z-10 h-[7px] w-[7px] shrink-0 rounded-full bg-gradient-to-br ${grad}`}
+        style={{
+          boxShadow: hovered ? `0 0 10px 3px ${glow}` : `0 0 5px 1.5px ${glow}`,
+          transform: hovered ? "scale(1.8)" : "scale(1)",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        }}
+      />
+      <span className={`font-display text-sm font-semibold w-16 shrink-0 ${active ? "text-sunlit" : "text-white"}`}>
+        {label}
+      </span>
+      <span
+        className="truncate text-xs"
+        style={{
+          color: hovered ? "rgba(255,255,255,0.85)" : "rgba(248,251,255,0.50)",
+          textShadow: hovered ? `0 0 14px ${glow}` : "none",
+          transition: "color 0.3s ease, text-shadow 0.3s ease",
+        }}
+      >
+        {role}
+      </span>
+      {active && (
+        <span className="ml-auto shrink-0 rounded-full bg-reef/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-reef">
+          Active
+        </span>
+      )}
+    </div>
+  );
+}
+
 // ─── Hero / Origin ────────────────────────────────────────────────────────────
 function Hero() {
   return (
@@ -397,32 +524,35 @@ function Hero() {
           style={{ opacity: 1 }}
           maxTilt={5}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(248,225,108,.22),transparent_28%),radial-gradient(circle_at_85%_18%,rgba(0,209,255,.22),transparent_25%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(248,225,108,.18),transparent_28%),radial-gradient(circle_at_85%_18%,rgba(0,209,255,.18),transparent_25%)]" />
           <div className="relative min-h-[22rem] rounded-[1.5rem] border border-white/10 bg-abyss/40 p-6">
-            <p className="font-display text-sm uppercase tracking-[0.3em] text-sunlit">Origin signal</p>
-            <div className="mt-8 space-y-3 border-l border-white/10 pl-5">
-              {[
-                { dot: "bg-cyan-400",   label: "Earth",   desc: "Masters · Computer Science"         },
-                { dot: "bg-orange-400", label: "Mars",    desc: "Resileo Labs · Niyata · First orbit" },
-                { dot: "bg-amber-300",  label: "Jupiter", desc: "HappyFox · Biggest mark"            },
-                { dot: "bg-yellow-200", label: "Saturn",  desc: "Packgine · Deep-space mission"       },
-              ].map(({ dot, label, desc }) => (
-                <div key={label} className="flex items-center gap-3">
-                  <PulsingDot color={dot} />
-                  <span className="font-display text-sm font-semibold text-white">{label}</span>
-                  <span className="text-xs text-starlight/55">{desc}</span>
-                </div>
-              ))}
+
+            {/* Header */}
+            <p className="font-display text-xs uppercase tracking-[0.3em] text-sunlit/80">Origin Signal</p>
+
+            {/* Trajectory timeline */}
+            <div className="relative mt-6">
+              {/* Gradient connecting line */}
+              <div className="absolute left-[0.3rem] top-3 bottom-3 w-px bg-gradient-to-b from-cyan-400/40 via-orange-400/25 to-yellow-300/40" />
+
+              <div className="space-y-1">
+                <MissionRow grad="from-cyan-400 to-blue-500"    glow="rgba(34,211,238,0.5)"   label="Earth"   role="Masters · Computer Science"       active={false} />
+                <MissionRow grad="from-orange-500 to-red-600"   glow="rgba(249,115,22,0.45)"  label="Mars"    role="Niyata · Backend Engineer / DevOps" active={false} />
+                <MissionRow grad="from-amber-400 to-orange-500" glow="rgba(251,191,36,0.45)"  label="Jupiter" role="HappyFox · Technical Lead"         active={false} />
+                <MissionRow grad="from-yellow-200 to-amber-400" glow="rgba(253,230,138,0.50)" label="Saturn"  role="Packgine · Technical Founder"      active={true}  />
+              </div>
             </div>
-            <div className="mt-10 space-y-4">
-              <p className="text-xl font-semibold leading-tight text-white">
-                Backend craft, product imagination, and operational systems in one orbit.
+
+            {/* Closing line */}
+            <div className="mt-7 border-t border-white/8 pt-5">
+              <p className="text-base font-semibold leading-snug text-white/85">
+                Seven years. Four planets. One compounding bet.
               </p>
-              <p className="text-sm leading-6 text-starlight/68">
-                This portfolio is a story told across planets — each one a chapter of altitude gain,
-                from launch to deep-space product architecture.
+              <p className="mt-2 text-xs leading-5 text-starlight/45">
+                Each orbit a deliberate bet — on leverage, on depth, on building something of your own.
               </p>
             </div>
+
           </div>
         </TiltCard>
       </div>
@@ -1626,7 +1756,7 @@ function Packgine() {
       id="packgine"
       eyebrow="Saturn · Deep-space mission"
       eyebrowClassName="text-sunlit"
-      title="Packgine: the system I was always building towards."
+      title="Packgine: turning packaging data into sustainability and regulatory intelligence."
       copy="Everything before this was training. This is where it compounds. Not a dashboard. Not a tool. A system of record for packaging — turning fragmented, manual, reactive workflows into structured, decision-ready outputs."
     >
       <div className="grid gap-4 sm:grid-cols-3">
@@ -1640,22 +1770,7 @@ function Packgine() {
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {packgineCapabilities.map((item, i) => (
-          <motion.div
-            key={item.title}
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -2, borderColor: "rgba(248,225,108,0.40)" }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-            className="glass flex items-center gap-3 rounded-2xl p-4 cursor-default"
-            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: "rgba(248,225,108,0.10)", color: "#F8E16C" }}>
-              <item.icon size={18} />
-            </span>
-            <p className="text-sm font-medium leading-5 text-white/90">{item.title}</p>
-          </motion.div>
+          <CapabilityCard key={item.title} item={item} i={i} />
         ))}
       </div>
 
@@ -1673,7 +1788,7 @@ function Packgine() {
         <p className="mt-3 text-sm leading-6 text-starlight/68">
           Packgine is where product and engineering compound into one thing. Leading architecture, data models,
           AI-driven automation pipelines, and compliance-ready infrastructure (SOC2 / GDPR).
-          Multi-tenant SaaS, 390+ backend APIs, 7+ agent workflows, EPR · PPWR · PPT compliance,
+          Multi-tenant SaaS, 390+ backend APIs, 10+ agentic workflows, EPR · PPWR · PPT compliance,
           Digital Product Passport, and scenario planning. Mission: make sustainability measurable,
           actionable, and system-driven — not manual and reactive.
         </p>
