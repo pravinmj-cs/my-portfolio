@@ -704,7 +704,7 @@ function HappyFox() {
       <p className="mt-3 text-xs leading-6 text-starlight/50">
         I genuinely had the best — the kind you don&apos;t fully appreciate until
         you&apos;ve seen the alternative.{" "}
-        <span className="text-starlight/72">Pradeep (CTO)</span> and{" "}
+        <span className="text-starlight/72">Pradeek (CTO)</span> and{" "}
         <span className="text-starlight/72">Suresh (EM)</span> trusted me with
         decisions before I had the title to justify them. The fellow dev team and
         the operations crew made the work feel like something worth doing. The list
@@ -1612,7 +1612,7 @@ function Creativity() {
                   Then this portfolio — a space journey told entirely in code.
                 </p>
                 <p className="text-sm leading-6 text-starlight/55">
-                  <span className="text-reef font-medium">Pradeep (CTO)</span> and{" "}
+                  <span className="text-reef font-medium">Pradeek (CTO)</span> and{" "}
                   <span className="text-reef font-medium">Suresh (EM)</span> gave me the room.
                   The culture and team gave me the fuel to run with it.
                 </p>
